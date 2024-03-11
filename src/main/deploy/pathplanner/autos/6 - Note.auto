@@ -1,12 +1,6 @@
 {
   "version": 1.0,
-  "startingPose": {
-    "position": {
-      "x": 1.55,
-      "y": 5.57
-    },
-    "rotation": 0
-  },
+  "startingPose": null,
   "command": {
     "type": "sequential",
     "data": {
@@ -14,19 +8,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Speaker Blue - 1"
+            "pathName": "Red - Speaker - 1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ShootNote"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Speaker Blue - 2"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Speaker Blue - 3"
+            "pathName": "Red - Speaker - 2"
           }
         }
       ]

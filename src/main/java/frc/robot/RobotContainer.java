@@ -1,11 +1,12 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import frc.robot.Commands.MoveToAprilTag;
+import frc.robot.Commands.RotateToTarget;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
@@ -15,6 +16,7 @@ import frc.robot.subsystems.ShooterSubsystem;
 import frc.utils.CustomCommandRunner;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
@@ -29,7 +31,7 @@ public class RobotContainer {
   private final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem();
   private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem();
 
-  private SendableChooser<Command> autoChooser = new SendableChooser<Command>();
+  public static SendableChooser<Command> autoChooser = new SendableChooser<Command>();
 
   public RobotContainer() {
     m_robotDrive.setDefaultCommand(
@@ -39,7 +41,7 @@ public class RobotContainer {
                 MathUtil.applyDeadband(driverController.getLeftX(), OIConstants.kDriveDeadband),
                 MathUtil.applyDeadband(driverController.getRightX(), OIConstants.kDriveDeadband),
                 true,
-                driverController.rightBumper().getAsBoolean()),
+                driverController.b().getAsBoolean()),
             m_robotDrive));
 
     configureButtonBindings();
@@ -47,6 +49,10 @@ public class RobotContainer {
   }
 
   private void configurePathPlanner() {
+    NamedCommands.registerCommand("IntakeInit", intakeGrabNote());
+    NamedCommands.registerCommand("ShootNote", automaticShootNote());
+    NamedCommands.registerCommand("MovingShootNote", automaticMovingShootNote());
+
     autoChooser = AutoBuilder.buildAutoChooser();
   }
 
@@ -61,7 +67,8 @@ public class RobotContainer {
     driverController.rightTrigger().whileTrue(automaticShootNote()).onFalse(stopShooter().alongWith(stopFeeder()));
 
     // Rotate To Target
-    driverController.leftTrigger().whileTrue(new MoveToAprilTag(m_robotDrive)).onFalse(new InstantCommand(() -> m_robotDrive.drive(0, 0, 0, true, false)));
+    driverController.leftTrigger().whileTrue(new RotateToTarget(m_robotDrive))
+        .onFalse(new InstantCommand(() -> m_robotDrive.drive(0, 0, 0, true, false)));
 
     // Enable Climber
     driverController.rightBumper().toggleOnTrue(new CustomCommandRunner(enableClimber(), stopClimber()));
@@ -87,17 +94,28 @@ public class RobotContainer {
   }
 
   private Command automaticShootNote() {
-    return new SequentialCommandGroup(
-        new InstantCommand(() -> driverController.getHID().setRumble(RumbleType.kBothRumble, 0.5))
-            .onlyIf(() -> !LimelightHelpers.isPossible()),
-        new SequentialCommandGroup(m_ShooterSubsystem.setShooterRPM(5500).alongWith(m_ShooterSubsystem.setShooterAngle()),
+    return new ParallelRaceGroup(new WaitUntilCommand(() -> !LimelightHelpers.isPossible())
+        .andThen(new InstantCommand(() -> driverController.getHID().setRumble(RumbleType.kBothRumble, 0.5))),
+        new SequentialCommandGroup(new RotateToTarget(m_robotDrive),
+            m_ShooterSubsystem.setShooterRPM(5500).alongWith(m_ShooterSubsystem.setShooterAngle()),
+            new WaitUntilCommand(
+                () -> m_ShooterSubsystem.shooterAtGoalRPM(5500) && m_ShooterSubsystem.shooterHingeAtGoal()),
+            m_FeederSubsystem.setFeederSpeed(1)));
+  }
+
+  private Command automaticMovingShootNote() {
+    return new ParallelRaceGroup(new WaitUntilCommand(() -> !LimelightHelpers.isPossible())
+        .andThen(new InstantCommand(() -> driverController.getHID().setRumble(RumbleType.kBothRumble, 0.5))),
+        new SequentialCommandGroup(
+            m_ShooterSubsystem.setShooterRPM(5500).alongWith(m_ShooterSubsystem.setShooterAngle()),
             new WaitUntilCommand(
                 () -> m_ShooterSubsystem.shooterAtGoalRPM(5500) && m_ShooterSubsystem.shooterHingeAtGoal()),
             m_FeederSubsystem.setFeederSpeed(1)));
   }
 
   private Command stopShooter() {
-    return m_ShooterSubsystem.stopShooterMotors().alongWith( new InstantCommand(() -> driverController.getHID().setRumble(RumbleType.kBothRumble, 0)));
+    return m_ShooterSubsystem.stopShooterMotors()
+        .alongWith(new InstantCommand(() -> driverController.getHID().setRumble(RumbleType.kBothRumble, 0)));
   }
 
   private Command enableClimber() {

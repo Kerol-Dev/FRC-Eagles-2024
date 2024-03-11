@@ -101,8 +101,7 @@ public class ShooterSubsystem extends SubsystemBase {
     {
         if(goalRPM == 0)
         {
-            shooterMotorLower.stopMotor();
-            shooterMotorUpper.stopMotor();
+            stopShooterMotorsLocal();
             return;
         }
 
@@ -127,7 +126,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     private void stopShooterMotorsLocal()
     {
-        shooterMotorLower.stopMotor();
-        shooterMotorUpper.stopMotor();
+        shooterMotorUpperPID.setReference(2500, ControlType.kVelocity);
+        shooterMotorLowerPID.setReference(2500, ControlType.kVelocity);
     }
 }

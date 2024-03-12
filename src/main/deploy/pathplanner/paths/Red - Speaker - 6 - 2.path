@@ -156,7 +156,7 @@
     },
     {
       "name": "ShootNote",
-      "waypointRelativePos": 1.7,
+      "waypointRelativePos": 1.7999999999999998,
       "command": {
         "type": "parallel",
         "data": {

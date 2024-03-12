@@ -22,6 +22,12 @@
           "data": {
             "pathName": "Red - Speaker - 6 - 2"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ShootNote"
+          }
         }
       ]
     }

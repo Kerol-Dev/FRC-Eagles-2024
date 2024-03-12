@@ -68,24 +68,40 @@
         "y": 5.550936522700434
       },
       "prevControl": {
-        "x": 13.674693031915854,
-        "y": 4.971229170159278
+        "x": 13.668952188118356,
+        "y": 4.971200745058773
       },
       "nextControl": {
-        "x": 13.663211344320857,
-        "y": 6.13064387524159
+        "x": 13.668952188118356,
+        "y": 5.8127987885979975
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 8.281967377058862,
-        "y": 4.1059393616471445
+        "x": 13.78606055357617,
+        "y": 4.11050362756931
       },
       "prevControl": {
-        "x": 8.284875790942683,
-        "y": 1.854100823832434
+        "x": 15.78606055357617,
+        "y": 4.11050362756931
+      },
+      "nextControl": {
+        "x": 13.73606055357617,
+        "y": 4.11050362756931
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 14.266204851953214,
+        "y": 4.473539560488536
+      },
+      "prevControl": {
+        "x": 14.031988121037584,
+        "y": 4.473539560488536
       },
       "nextControl": null,
       "isLocked": false,
@@ -104,14 +120,19 @@
       "rotateFast": true
     },
     {
-      "waypointRelativePos": 4.6000000000000005,
-      "rotationDegrees": -40.48897038302069,
-      "rotateFast": false
-    },
-    {
       "waypointRelativePos": 4.0,
       "rotationDegrees": 0,
       "rotateFast": true
+    },
+    {
+      "waypointRelativePos": 5.0,
+      "rotationDegrees": 0.0,
+      "rotateFast": false
+    },
+    {
+      "waypointRelativePos": 4.6000000000000005,
+      "rotationDegrees": 27.46158032143001,
+      "rotateFast": false
     }
   ],
   "constraintZones": [],
@@ -186,7 +207,7 @@
     },
     {
       "name": "IntakeInit",
-      "waypointRelativePos": 4.65,
+      "waypointRelativePos": 4.6000000000000005,
       "command": {
         "type": "parallel",
         "data": {
@@ -210,8 +231,8 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -74.86375530015601,
-    "rotateFast": true
+    "rotation": 28.5,
+    "rotateFast": false
   },
   "reversed": false,
   "folder": null,

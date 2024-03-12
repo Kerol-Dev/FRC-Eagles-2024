@@ -5,6 +5,8 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import org.littletonrobotics.junction.AutoLogOutput;
+
 import com.ctre.phoenix.sensors.CANCoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkPIDController;
@@ -30,8 +32,10 @@ public class SwerveModule {
   public double encoderOffset;
   private Rotation2d encoderOffset2d;
 
+  @AutoLogOutput
   private SwerveModuleState m_desiredState = new SwerveModuleState(0.0, new Rotation2d());
 
+  @SuppressWarnings("deprecation")
   public SwerveModule(int drivingCANId, int turningCANId, int cancoderID, boolean drivingMotorReversed,
       boolean turningMotorReversed, double encoderOffset, boolean encoderInverted, double chassisAngularOffset) {
 
@@ -136,6 +140,7 @@ public class SwerveModule {
         .fromRadians((Math.abs(m_turningEncoder.getPosition()) % (2.0 * Math.PI)) - m_chassisAngularOffset);
   }
 
+  @SuppressWarnings("deprecation")
   public void updateSmartDashboard() {
     SmartDashboard.putNumber("Cancoder_" + m_canEncoder.getDeviceID(),
         getCanCoder().getDegrees());
@@ -170,10 +175,12 @@ public class SwerveModule {
     m_drivingEncoder.setPosition(0);
   }
 
+  @SuppressWarnings("deprecation")
   public Rotation2d getCanCoder() {
     return Rotation2d.fromDegrees((m_canEncoder.getAbsolutePosition()));
   }
 
+  @SuppressWarnings("deprecation")
   public void resetToAbsolute() {
     System.out.println(m_canEncoder.getDeviceID() + " Offset: " + encoderOffset2d.getDegrees());
     double absolutePosition = getCanCoder().getRadians() - encoderOffset2d.getRadians();

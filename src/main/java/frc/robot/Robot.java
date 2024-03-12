@@ -1,20 +1,31 @@
-
 package frc.robot;
 
+import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.DriveSubsystem;
 
-public class Robot extends TimedRobot {
+public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
   private RobotContainer m_robotContainer;
 
+  @SuppressWarnings("resource")
   @Override
   public void robotInit() {
+    Logger.recordMetadata("Eagles 2024", "Main"); // Set a metadata value
+    Logger.addDataReceiver(new WPILOGWriter("/home/lvuser/logs"));
+    new PowerDistribution(0, ModuleType.kCTRE);
+
+    Logger.start();
+
     m_robotContainer = new RobotContainer();
     DriveSubsystem.resetToAbsolute();
     SmartDashboard.putNumber("Manual Shooter Angle", 0);

@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import org.littletonrobotics.junction.AutoLogOutput;
+
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -13,6 +15,7 @@ import frc.robot.LimelightHelpers.LimelightTarget_Fiducial;
 
 public class VisionSubsystem extends SubsystemBase {
   private final DriveSubsystem swerve;
+  @AutoLogOutput
   public SwerveDrivePoseEstimator poseEst;
 
   public VisionSubsystem(DriveSubsystem swerve) {

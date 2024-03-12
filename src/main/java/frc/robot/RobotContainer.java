@@ -91,7 +91,8 @@ public class RobotContainer {
 
   // Commands
   private Command intakeGrabNote() {
-    return new SequentialCommandGroup(
+    return new SequentialCommandGroup(m_ShooterSubsystem.setOvverideAngle(30),
+        new WaitUntilCommand(() -> m_ShooterSubsystem.shooterHingeAtGoal()),
         m_IntakeSubsystem.setIntakeSpeed(1).alongWith(m_FeederSubsystem.setFeederSpeed(0.4)),
         new WaitUntilCommand(() -> m_FeederSubsystem.hasNote()),
         m_IntakeSubsystem.stopIntake().alongWith(m_FeederSubsystem.stopFeeder()));

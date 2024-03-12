@@ -5,6 +5,7 @@ package frc.robot;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -407,6 +408,9 @@ public class LimelightHelpers {
 
     // Function to calculate the required shooting angle for a given distance
     public static double calculateShootingAngle() {
+        if (SmartDashboard.getNumber("Manual Shooter Angle", 0) > 0)
+            return SmartDashboard.getNumber("Manual Shooter Angle", 0);
+            
         if (!getTV(""))
             return -1.0;
 
@@ -419,9 +423,9 @@ public class LimelightHelpers {
         return angle;
     }
 
-    public static boolean isPossible()
-    {
-        return getTV("") && LimelightHelpers.getTargetPose3d_CameraSpace("").getZ() >= MIN_DISTANCE && LimelightHelpers.getTargetPose3d_CameraSpace("").getZ() <= MAX_DISTANCE;
+    public static boolean isPossible() {
+        return getTV("") && LimelightHelpers.getTargetPose3d_CameraSpace("").getZ() >= MIN_DISTANCE
+                && LimelightHelpers.getTargetPose3d_CameraSpace("").getZ() <= MAX_DISTANCE;
     }
 
     public static NetworkTable getLimelightNTTable(String tableName) {

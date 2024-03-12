@@ -75,7 +75,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        goalAngle = LimelightHelpers.calculateShootingAngle();
+        goalAngle = ovverideAngle > 0 ? ovverideAngle : LimelightHelpers.calculateShootingAngle();
 
         SmartDashboard.putNumber("Upper Shooter RPM", shooterMotorUpper.getEncoder().getVelocity());
         SmartDashboard.putNumber("Lower Shooter RPM", shooterMotorLower.getEncoder().getVelocity());

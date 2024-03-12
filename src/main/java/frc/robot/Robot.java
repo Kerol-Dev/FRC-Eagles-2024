@@ -1,7 +1,9 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.DriveSubsystem;
@@ -19,16 +21,21 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
+
+    if(DriverStation.isDisabled())
+    {
+      if(LimelightHelpers.getTV(""))
+      {
+        LimelightHelpers.setLEDMode_ForceBlink("");
+        return;
+      }
+    }
+    LimelightHelpers.setLEDMode_ForceOff("");
   }
 
   @Override
-  public void disabledInit() {}
-
-  @Override
-  public void disabledPeriodic() {}
-
-  @Override
   public void autonomousInit() {
+    DriveSubsystem.resetEncoders();
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     if (m_autonomousCommand != null) {
@@ -37,7 +44,10 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+    m_robotContainer.driverController.getHID().setRumble(RumbleType.kBothRumble, 0);
+    m_robotContainer.m_ShooterSubsystem.setShooterAngleLocal();
+  }
 
   @Override
   public void teleopInit() {
@@ -47,14 +57,7 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void teleopPeriodic() {}
-
-  @Override
   public void testInit() {
-
     CommandScheduler.getInstance().cancelAll();
   }
-
-  @Override
-  public void testPeriodic() {}
 }

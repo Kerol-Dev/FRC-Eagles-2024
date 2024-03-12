@@ -405,24 +405,23 @@ public class LimelightHelpers {
     final static double MIN_ANGLE = 30;
     final static double MAX_ANGLE = 60;
 
-    public static boolean isPossible()
-    {
-        return getTV("") && LimelightHelpers.getTargetPose3d_CameraSpace("").getZ() >= MIN_DISTANCE && LimelightHelpers.getTargetPose3d_CameraSpace("").getZ() <= MAX_DISTANCE;
-    }
-
     // Function to calculate the required shooting angle for a given distance
     public static double calculateShootingAngle() {
         if (!getTV(""))
-            return 0.0;
+            return -1.0;
 
         double targetDistance = LimelightHelpers.getTargetPose3d_CameraSpace("").getZ();
 
         double distanceRatio = (targetDistance - MIN_DISTANCE) / (MAX_DISTANCE - MIN_DISTANCE);
 
-        // Calculate the angle using linear interpolation
         double angle = MIN_ANGLE + (MAX_ANGLE - MIN_ANGLE) * distanceRatio;
 
         return angle;
+    }
+
+    public static boolean isPossible()
+    {
+        return getTV("") && LimelightHelpers.getTargetPose3d_CameraSpace("").getZ() >= MIN_DISTANCE && LimelightHelpers.getTargetPose3d_CameraSpace("").getZ() <= MAX_DISTANCE;
     }
 
     public static NetworkTable getLimelightNTTable(String tableName) {

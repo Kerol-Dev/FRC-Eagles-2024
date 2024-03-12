@@ -62,7 +62,7 @@ public class DriveSubsystem extends SubsystemBase {
       DriveConstants.kRearRightChassisAngularOffset);
 
   public final Field2d m_field = new Field2d();
-  private AHRS m_gyro = new AHRS(SPI.Port.kMXP);
+  private static AHRS m_gyro = new AHRS(SPI.Port.kMXP);
 
   private SlewRateLimiter m_magXLimiter = new SlewRateLimiter(DriveConstants.kMaxAcceleration);
   private SlewRateLimiter m_magYLimiter = new SlewRateLimiter(DriveConstants.kMaxAcceleration);
@@ -116,13 +116,7 @@ public class DriveSubsystem extends SubsystemBase {
     m_frontRight.updateSmartDashboard();
 
     SmartDashboard.putData(m_gyro);
-    SmartDashboard.putBoolean("Gyro Connection", m_gyro.isConnected());
-
     m_field.setRobotPose(m_VisionSubsystem.getCurrentPose());
-
-    SmartDashboard.putNumber("Robot Heading", m_gyro.getAngle());
-    SmartDashboard.putString("Robot Location", getPose().getRotation().toString());
-    SmartDashboard.putString("Robot Location", getPose().getTranslation().toString());
     SmartDashboard.putData(m_field);
   }
 
@@ -194,7 +188,7 @@ public class DriveSubsystem extends SubsystemBase {
     return m_gyro.getRate() * (DriveConstants.kGyroReversed ? -1.0 : 1.0);
   }
 
-  public void resetEncoders() {
+  public static void resetEncoders() {
     m_frontLeft.resetEncoders();
     m_rearLeft.resetEncoders();
     m_frontRight.resetEncoders();

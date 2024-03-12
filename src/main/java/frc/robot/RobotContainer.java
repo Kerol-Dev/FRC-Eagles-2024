@@ -23,13 +23,13 @@ import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 public class RobotContainer {
-  private final CommandXboxController driverController = new CommandXboxController(OIConstants.kDriverControllerPort);
+  public final CommandXboxController driverController = new CommandXboxController(OIConstants.kDriverControllerPort);
 
-  private final DriveSubsystem m_robotDrive = new DriveSubsystem();
-  private final ClimbSubsystem m_ClimbSubsystem = new ClimbSubsystem();
-  private final FeederSubsystem m_FeederSubsystem = new FeederSubsystem();
-  private final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem();
-  private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem();
+  public final DriveSubsystem m_robotDrive = new DriveSubsystem();
+  public final ClimbSubsystem m_ClimbSubsystem = new ClimbSubsystem();
+  public final FeederSubsystem m_FeederSubsystem = new FeederSubsystem();
+  public final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem();
+  public final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem();
 
   public static SendableChooser<Command> autoChooser = new SendableChooser<Command>();
 
@@ -61,7 +61,7 @@ public class RobotContainer {
     driverController.start().onTrue(new InstantCommand(() -> m_robotDrive.zeroHeading()));
 
     // Intake Grab Note
-    driverController.x().toggleOnTrue(new CustomCommandRunner(intakeGrabNote(), stopIntake().alongWith(stopFeeder())));
+    driverController.x().toggleOnTrue(new CustomCommandRunner(intakeGrabNote(), stopIntake().alongWith(stopFeeder()).alongWith(resetRumble())));
 
     // Set Angle And Shoot
     driverController.rightTrigger().whileTrue(automaticShootNote()).onFalse(stopShooter().alongWith(stopFeeder()));
@@ -75,6 +75,9 @@ public class RobotContainer {
 
     // Disable Climber
     driverController.leftBumper().toggleOnTrue(new CustomCommandRunner(disableClimber(), stopClimber()));
+
+    // Adjust Shooter Angle
+    driverController.y().whileTrue(m_ShooterSubsystem.setShooterAngle());
   }
 
   // Commands
@@ -93,9 +96,14 @@ public class RobotContainer {
     return m_FeederSubsystem.stopFeeder();
   }
 
+  private Command resetRumble() {
+    return new InstantCommand(() -> driverController.getHID().setRumble(RumbleType.kBothRumble, 0));
+  }
+
   private Command automaticShootNote() {
-    return new ParallelRaceGroup(new WaitUntilCommand(() -> !LimelightHelpers.isPossible())
-        .andThen(new InstantCommand(() -> driverController.getHID().setRumble(RumbleType.kBothRumble, 0.5))),
+    return new ParallelRaceGroup(
+        new WaitUntilCommand(() -> !LimelightHelpers.isPossible() || !m_FeederSubsystem.hasNote())
+            .andThen(new InstantCommand(() -> driverController.getHID().setRumble(RumbleType.kBothRumble, 0.5))),
         new SequentialCommandGroup(new RotateToTarget(m_robotDrive),
             m_ShooterSubsystem.setShooterRPM(5500).alongWith(m_ShooterSubsystem.setShooterAngle()),
             new WaitUntilCommand(
@@ -104,8 +112,9 @@ public class RobotContainer {
   }
 
   private Command automaticMovingShootNote() {
-    return new ParallelRaceGroup(new WaitUntilCommand(() -> !LimelightHelpers.isPossible())
-        .andThen(new InstantCommand(() -> driverController.getHID().setRumble(RumbleType.kBothRumble, 0.5))),
+    return new ParallelRaceGroup(
+        new WaitUntilCommand(() -> !LimelightHelpers.isPossible() || !m_FeederSubsystem.hasNote())
+            .andThen(new InstantCommand(() -> driverController.getHID().setRumble(RumbleType.kBothRumble, 0.5))),
         new SequentialCommandGroup(
             m_ShooterSubsystem.setShooterRPM(5500).alongWith(m_ShooterSubsystem.setShooterAngle()),
             new WaitUntilCommand(

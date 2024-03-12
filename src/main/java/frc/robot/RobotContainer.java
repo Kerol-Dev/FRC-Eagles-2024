@@ -61,7 +61,8 @@ public class RobotContainer {
     driverController.start().onTrue(new InstantCommand(() -> m_robotDrive.zeroHeading()));
 
     // Intake Grab Note
-    driverController.x().toggleOnTrue(new CustomCommandRunner(intakeGrabNote(), stopIntake().alongWith(stopFeeder()).alongWith(resetRumble())));
+    driverController.x().toggleOnTrue(
+        new CustomCommandRunner(intakeGrabNote(), stopIntake().alongWith(stopFeeder()).alongWith(resetRumble())));
 
     // Set Angle And Shoot
     driverController.rightTrigger().whileTrue(automaticShootNote()).onFalse(stopShooter().alongWith(stopFeeder()));
@@ -78,6 +79,14 @@ public class RobotContainer {
 
     // Adjust Shooter Angle
     driverController.y().whileTrue(m_ShooterSubsystem.setShooterAngle());
+
+    // Automatic AMP Shoot
+    driverController.b().whileTrue(automaticAmpShoot())
+        .onFalse(stopShooter().alongWith(stopFeeder()).alongWith(m_ShooterSubsystem.setOvverideAngle(0)));
+
+    // Automatic Eject Shoot
+    driverController.a().whileTrue(ejectShoot())
+        .onFalse(stopShooter().alongWith(stopFeeder()).alongWith(m_ShooterSubsystem.setOvverideAngle(0)));
   }
 
   // Commands
@@ -98,6 +107,28 @@ public class RobotContainer {
 
   private Command resetRumble() {
     return new InstantCommand(() -> driverController.getHID().setRumble(RumbleType.kBothRumble, 0));
+  }
+
+  private Command automaticAmpShoot() {
+    return new ParallelRaceGroup(
+        new WaitUntilCommand(() -> !m_FeederSubsystem.hasNote())
+            .andThen(new InstantCommand(() -> driverController.getHID().setRumble(RumbleType.kBothRumble, 0.5))),
+        new SequentialCommandGroup(
+            m_ShooterSubsystem.setShooterRPM(5500).alongWith(m_ShooterSubsystem.setOvverideAngle(45)),
+            new WaitUntilCommand(
+                () -> m_ShooterSubsystem.shooterAtGoalRPM(5500) && m_ShooterSubsystem.shooterHingeAtGoal()),
+            m_FeederSubsystem.setFeederSpeed(1)));
+  }
+
+  private Command ejectShoot() {
+    return new ParallelRaceGroup(
+        new WaitUntilCommand(() -> !m_FeederSubsystem.hasNote())
+            .andThen(new InstantCommand(() -> driverController.getHID().setRumble(RumbleType.kBothRumble, 0.5))),
+        new SequentialCommandGroup(
+            m_ShooterSubsystem.setShooterRPM(800).alongWith(m_ShooterSubsystem.setOvverideAngle(45)),
+            new WaitUntilCommand(
+                () -> m_ShooterSubsystem.shooterAtGoalRPM(800) && m_ShooterSubsystem.shooterHingeAtGoal()),
+            m_FeederSubsystem.setFeederSpeed(1)));
   }
 
   private Command automaticShootNote() {

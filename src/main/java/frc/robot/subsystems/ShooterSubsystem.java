@@ -35,6 +35,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private int angleTolerance = 2;
 
     public double goalAngle = 0;
+    public double ovverideAngle = 0;
 
     public ShooterSubsystem() {
         shooterMotorUpper.restoreFactoryDefaults();
@@ -112,16 +113,24 @@ public class ShooterSubsystem extends SubsystemBase {
         return Commands.runOnce(() -> setShooterAngleLocal());
     }
 
+    public Command setOvverideAngle(double angle)
+    {
+        return Commands.runOnce(() -> ovverideAngle = angle);
+    }
+
     public void setShooterAngleLocal() {
-        if (goalAngle >= 0)
+        if (goalAngle >= 0 && ovverideAngle <= 0)
             shooterMotorHingePID.setReference(goalAngle, ControlType.kPosition);
+
+        if (ovverideAngle > 0)
+            shooterMotorHingePID.setReference(ovverideAngle, ControlType.kPosition);
     }
 
     public Command stopShooterMotors() {
         return Commands.runOnce(() -> stopShooterMotorsLocal());
     }
 
-    private void stopShooterMotorsLocal() {
+    public void stopShooterMotorsLocal() {
         shooterMotorUpperPID.setReference(2500, ControlType.kVelocity);
         shooterMotorLowerPID.setReference(2500, ControlType.kVelocity);
     }

@@ -13,8 +13,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ClimbSubsystem extends SubsystemBase {
-    private final CANSparkMax climbMotor = new CANSparkMax(0, MotorType.kBrushless);
-    private final SparkPIDController climbMotorPID;
+    private final CANSparkMax climbMotor = new CANSparkMax(15, MotorType.kBrushless);
+    private SparkPIDController climbMotorPID;
 
     private double positionKp = 1;
     private double positionKi = 0;
@@ -46,11 +46,11 @@ public class ClimbSubsystem extends SubsystemBase {
 
     public Command setIntakePosition(boolean up)
     {
-        return Commands.runOnce(() -> climbMotorPID.setReference(up ? 100 : 0, ControlType.kPosition), this);
+        return Commands.runOnce(() -> climbMotorPID.setReference(up ? 100 : 0, ControlType.kPosition));
     }
 
     public Command stopClimber()
     {
-        return Commands.runOnce(() -> climbMotor.stopMotor(), this);
+        return Commands.runOnce(() -> climbMotor.stopMotor());
     }
 }

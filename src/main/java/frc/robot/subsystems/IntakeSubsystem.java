@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class IntakeSubsystem extends SubsystemBase {
-    private final CANSparkMax intakeMotor = new CANSparkMax(0, MotorType.kBrushless);
+    private final CANSparkMax intakeMotor = new CANSparkMax(25, MotorType.kBrushless);
 
     public IntakeSubsystem()
     {
@@ -26,11 +26,11 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public Command setIntakeSpeed(double speed)
     {
-        return Commands.runOnce(() -> intakeMotor.set(speed), this);
+        return Commands.runOnce(() -> intakeMotor.set(speed));
     }
 
     public Command stopIntake()
     {
-        return Commands.runOnce(() -> intakeMotor.stopMotor(), this);
+        return Commands.runOnce(() -> intakeMotor.stopMotor());
     }
 }

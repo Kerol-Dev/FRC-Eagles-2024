@@ -6,6 +6,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Commands.RotateToTarget;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.ClimbSubsystem;
@@ -50,10 +51,9 @@ public class RobotContainer {
 
   private void configurePathPlanner() {
     NamedCommands.registerCommand("IntakeInit", intakeGrabNote());
-    NamedCommands.registerCommand("ShootNote", automaticShootNote());
-    NamedCommands.registerCommand("MovingShootNote", automaticMovingShootNote());
-
+    NamedCommands.registerCommand("ShootNote", automaticMovingShootNote());
     autoChooser = AutoBuilder.buildAutoChooser();
+    SmartDashboard.putData(autoChooser);
   }
 
   private void configureButtonBindings() {

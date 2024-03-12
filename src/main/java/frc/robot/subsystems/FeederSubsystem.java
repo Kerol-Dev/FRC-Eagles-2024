@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class FeederSubsystem extends SubsystemBase {
-    private final CANSparkMax feederMotor = new CANSparkMax(0, MotorType.kBrushless);
+    private final CANSparkMax feederMotor = new CANSparkMax(16, MotorType.kBrushless);
     private final DigitalInput feederSensor = new DigitalInput(0);
 
     public FeederSubsystem() {
@@ -31,10 +31,10 @@ public class FeederSubsystem extends SubsystemBase {
     }
 
     public Command setFeederSpeed(double speed) {
-        return Commands.runOnce(() -> feederMotor.set(speed), this);
+        return Commands.runOnce(() -> feederMotor.set(speed));
     }
 
     public Command stopFeeder() {
-        return Commands.runOnce(() -> feederMotor.stopMotor(), this);
+        return Commands.runOnce(() -> feederMotor.stopMotor());
     }
 }

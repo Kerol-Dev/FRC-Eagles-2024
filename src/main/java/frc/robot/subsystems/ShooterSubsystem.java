@@ -14,9 +14,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
 
 public class ShooterSubsystem extends SubsystemBase {
-    private final CANSparkMax shooterMotorUpper = new CANSparkMax(0, MotorType.kBrushless);
-    private final CANSparkMax shooterMotorLower = new CANSparkMax(0, MotorType.kBrushless);
-    private final CANSparkMax shooterMotorHinge = new CANSparkMax(0, MotorType.kBrushless);
+    private final CANSparkMax shooterMotorUpper = new CANSparkMax(31, MotorType.kBrushless);
+    private final CANSparkMax shooterMotorLower = new CANSparkMax(41, MotorType.kBrushless);
+    private final CANSparkMax shooterMotorHinge = new CANSparkMax(51, MotorType.kBrushless);
 
     private SparkPIDController shooterMotorUpperPID;
     private SparkPIDController shooterMotorLowerPID;
@@ -95,7 +95,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public Command setShooterRPM(int goalRPM) {
-        return Commands.runOnce(() -> setShooterRPMLocal(goalRPM), this);
+        return Commands.runOnce(() -> setShooterRPMLocal(goalRPM));
     }
 
     private void setShooterRPMLocal(int goalRPM) {
@@ -109,7 +109,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public Command setShooterAngle() {
-        return Commands.runOnce(() -> setShooterAngleLocal(), this);
+        return Commands.runOnce(() -> setShooterAngleLocal());
     }
 
     public void setShooterAngleLocal() {
@@ -118,7 +118,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public Command stopShooterMotors() {
-        return Commands.runOnce(() -> stopShooterMotorsLocal(), this);
+        return Commands.runOnce(() -> stopShooterMotorsLocal());
     }
 
     private void stopShooterMotorsLocal() {

@@ -134,7 +134,7 @@
       }
     },
     {
-      "name": "MovingShootNote",
+      "name": "ShootNote",
       "waypointRelativePos": 1.7,
       "command": {
         "type": "parallel",
@@ -168,7 +168,7 @@
       }
     },
     {
-      "name": "MovingShootNote",
+      "name": "ShootNote",
       "waypointRelativePos": 3.7,
       "command": {
         "type": "parallel",
@@ -177,7 +177,7 @@
             {
               "type": "named",
               "data": {
-                "name": "MovingShootNote"
+                "name": "ShootNote"
               }
             }
           ]

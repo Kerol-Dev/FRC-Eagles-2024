@@ -39,7 +39,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public ShooterSubsystem() {
         shooterMotorUpper.restoreFactoryDefaults();
-        shooterMotorUpper.setIdleMode(IdleMode.kBrake);
+        shooterMotorUpper.setIdleMode(IdleMode.kCoast);
         shooterMotorUpper.setInverted(false);
         shooterMotorUpperPID.setFeedbackDevice(shooterMotorUpper.getEncoder());
 
@@ -48,7 +48,7 @@ public class ShooterSubsystem extends SubsystemBase {
         shooterMotorUpperPID.setD(velocityKd);
 
         shooterMotorLower.restoreFactoryDefaults();
-        shooterMotorLower.setIdleMode(IdleMode.kBrake);
+        shooterMotorLower.setIdleMode(IdleMode.kCoast);
         shooterMotorLower.setInverted(false);
         shooterMotorLowerPID.setFeedbackDevice(shooterMotorLower.getEncoder());
 
@@ -118,12 +118,9 @@ public class ShooterSubsystem extends SubsystemBase {
         return Commands.runOnce(() -> ovverideAngle = angle);
     }
 
-    public void setShooterAngleLocal() {
-        if (goalAngle >= 0 && ovverideAngle <= 0)
+    private void setShooterAngleLocal() {
+        if (goalAngle >= 0)
             shooterMotorHingePID.setReference(goalAngle, ControlType.kPosition);
-
-        if (ovverideAngle > 0)
-            shooterMotorHingePID.setReference(ovverideAngle, ControlType.kPosition);
     }
 
     public Command stopShooterMotors() {

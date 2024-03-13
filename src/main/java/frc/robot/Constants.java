@@ -63,7 +63,7 @@ public final class Constants {
     public static final double kTurningMotorReduction = 10.0446;
 
     public static final double kDrivingEncoderPositionFactor = ((kWheelDiameterMeters * Math.PI)
-        / kDrivingMotorReduction) / 3; // meters
+        / kDrivingMotorReduction); // meters
     public static final double kDrivingEncoderVelocityFactor = ((kWheelDiameterMeters * Math.PI)
         / kDrivingMotorReduction) / 60.0; // meters per second
 

@@ -53,11 +53,11 @@
       },
       "prevControl": {
         "x": 8.281967377058862,
-        "y": 8.77141657279035
+        "y": 8.771416572790354
       },
       "nextControl": {
         "x": 8.281967377058862,
-        "y": 3.062125397102769
+        "y": 2.646561009188423
       },
       "isLocked": false,
       "linkedName": null
@@ -69,27 +69,27 @@
       },
       "prevControl": {
         "x": 13.668952188118356,
-        "y": 5.070649430476853
+        "y": 5.400936522700434
       },
       "nextControl": {
         "x": 13.668952188118356,
-        "y": 5.8127987885979975
+        "y": 5.812798788597998
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 13.78606055357617,
-        "y": 4.11050362756931
+        "x": 13.91487975557977,
+        "y": 4.098792791023527
       },
       "prevControl": {
-        "x": 15.78606055357617,
-        "y": 4.11050362756931
+        "x": 15.91487975557977,
+        "y": 4.098792791023527
       },
       "nextControl": {
-        "x": 13.73606055357617,
-        "y": 4.11050362756931
+        "x": 13.86487975557977,
+        "y": 4.098792791023527
       },
       "isLocked": false,
       "linkedName": null
@@ -133,6 +133,16 @@
       "waypointRelativePos": 4.6000000000000005,
       "rotationDegrees": 27.46158032143001,
       "rotateFast": false
+    },
+    {
+      "waypointRelativePos": 3.5,
+      "rotationDegrees": 98.76272007903795,
+      "rotateFast": true
+    },
+    {
+      "waypointRelativePos": 2.45,
+      "rotationDegrees": -94.20000386633441,
+      "rotateFast": true
     }
   ],
   "constraintZones": [],
@@ -190,7 +200,7 @@
     },
     {
       "name": "ShootNote",
-      "waypointRelativePos": 3.7,
+      "waypointRelativePos": 3.8,
       "command": {
         "type": "parallel",
         "data": {
@@ -225,7 +235,7 @@
   ],
   "globalConstraints": {
     "maxVelocity": 4.5,
-    "maxAcceleration": 4.0,
+    "maxAcceleration": 4.5,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },

@@ -59,7 +59,6 @@ public class Robot extends LoggedRobot {
   @Override
   public void autonomousPeriodic() {
     m_robotContainer.driverController.getHID().setRumble(RumbleType.kBothRumble, 0);
-    m_robotContainer.m_ShooterSubsystem.setShooterAngleLocal();
   }
 
   @Override

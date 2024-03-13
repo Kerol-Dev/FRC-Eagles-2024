@@ -46,6 +46,8 @@ public class RobotContainer {
                 driverController.b().getAsBoolean()),
             m_robotDrive));
 
+    m_robotDrive.setDefaultCommand(m_ShooterSubsystem.setShooterAngle());
+
     configureButtonBindings();
     configurePathPlanner();
   }
@@ -55,7 +57,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("ShootNote", automaticMovingShootNote()
         .andThen(new WaitUntilCommand(() -> !m_FeederSubsystem.hasNote()))
         .andThen(new WaitCommand(0.3))
-        .andThen(stopShooter().alongWith(stopFeeder())));
+        .andThen(stopFeeder()));
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData(autoChooser);
   }
@@ -69,7 +71,8 @@ public class RobotContainer {
         new CustomCommandRunner(intakeGrabNote(), stopIntake().alongWith(stopFeeder()).alongWith(resetRumble())));
 
     // Set Angle And Shoot
-    driverController.rightTrigger().whileTrue(automaticShootNote()).onFalse(stopShooter().alongWith(stopFeeder()).alongWith(resetRumble()));
+    driverController.rightTrigger().whileTrue(automaticShootNote())
+        .onFalse(resetShooter());
 
     // Rotate To Target
     driverController.leftTrigger().whileTrue(new RotateToTarget(m_robotDrive))
@@ -81,29 +84,28 @@ public class RobotContainer {
     // Disable Climber
     driverController.leftBumper().toggleOnTrue(new CustomCommandRunner(disableClimber(), stopClimber()));
 
-    // Adjust Shooter Angle
-    driverController.y().whileTrue(m_ShooterSubsystem.setShooterAngle());
-
     // Automatic AMP Shoot
     driverController.b().whileTrue(automaticAmpShoot())
-        .onFalse(stopShooter().alongWith(stopFeeder()).alongWith(m_ShooterSubsystem.setOvverideAngle(0)).alongWith(resetRumble()));
+        .onFalse(resetShooter());
 
     // Automatic Eject Shoot
     driverController.a().whileTrue(ejectShoot())
-        .onFalse(stopShooter().alongWith(stopFeeder()).alongWith(m_ShooterSubsystem.setOvverideAngle(0)).alongWith(resetRumble()));
+        .onFalse(resetShooter());
   }
 
   // Commands
   private Command intakeGrabNote() {
-    return new SequentialCommandGroup(
-        new ParallelRaceGroup(new WaitUntilCommand(() -> !m_FeederSubsystem.hasNote()),
-            new InstantCommand(() -> driverController.getHID().setRumble(RumbleType.kBothRumble, 0.5))),
-        resetRumble(),
-        m_ShooterSubsystem.setOvverideAngle(0),
-        new WaitUntilCommand(() -> m_ShooterSubsystem.shooterHingeAtGoal()),
-        m_IntakeSubsystem.setIntakeSpeed(1).alongWith(m_FeederSubsystem.setFeederSpeed(0.4)),
-        new WaitUntilCommand(() -> m_FeederSubsystem.hasNote()),
-        m_IntakeSubsystem.stopIntake().alongWith(m_FeederSubsystem.stopFeeder()));
+    return new ParallelRaceGroup(new WaitUntilCommand(() -> m_FeederSubsystem.hasNote()),
+        m_IntakeSubsystem.setIntakeSpeed(1).alongWith(m_FeederSubsystem.setFeederSpeed(0.25)))
+        .andThen(stopIntake().alongWith(stopFeeder()))
+        .andThen(new InstantCommand(() -> driverController.getHID().setRumble(RumbleType.kBothRumble, 0.5)))
+        .andThen(new WaitCommand(0.5))
+        .andThen(resetRumble());
+  }
+
+  private Command resetShooter() {
+    return stopShooter().alongWith(stopFeeder()).alongWith(m_ShooterSubsystem.setOvverideAngle(0))
+        .alongWith(resetRumble());
   }
 
   private Command stopIntake() {
@@ -120,8 +122,7 @@ public class RobotContainer {
 
   private Command automaticAmpShoot() {
     return new ParallelRaceGroup(
-        new WaitUntilCommand(() -> !m_FeederSubsystem.hasNote())
-            .andThen(new InstantCommand(() -> driverController.getHID().setRumble(RumbleType.kBothRumble, 0.5))),
+        checkPossibilityNoVision(),
         new SequentialCommandGroup(
             m_ShooterSubsystem.setShooterRPM(5500).alongWith(m_ShooterSubsystem.setOvverideAngle(45)),
             new WaitUntilCommand(
@@ -131,8 +132,7 @@ public class RobotContainer {
 
   private Command ejectShoot() {
     return new ParallelRaceGroup(
-        new WaitUntilCommand(() -> !m_FeederSubsystem.hasNote())
-            .andThen(new InstantCommand(() -> driverController.getHID().setRumble(RumbleType.kBothRumble, 0.5))),
+        checkPossibilityNoVision(),
         new SequentialCommandGroup(
             m_ShooterSubsystem.setShooterRPM(800).alongWith(m_ShooterSubsystem.setOvverideAngle(45)),
             new WaitUntilCommand(
@@ -142,8 +142,7 @@ public class RobotContainer {
 
   private Command automaticShootNote() {
     return new ParallelRaceGroup(
-        new WaitUntilCommand(() -> !LimelightHelpers.isPossible() || !m_FeederSubsystem.hasNote())
-            .andThen(new InstantCommand(() -> driverController.getHID().setRumble(RumbleType.kBothRumble, 0.5))),
+        checkPossibility(),
         new SequentialCommandGroup(new RotateToTarget(m_robotDrive),
             m_ShooterSubsystem.setShooterRPM(5500).alongWith(m_ShooterSubsystem.setShooterAngle()),
             new WaitUntilCommand(
@@ -153,8 +152,7 @@ public class RobotContainer {
 
   private Command automaticMovingShootNote() {
     return new ParallelRaceGroup(
-        new WaitUntilCommand(() -> !LimelightHelpers.isPossible() || !m_FeederSubsystem.hasNote())
-            .andThen(new InstantCommand(() -> driverController.getHID().setRumble(RumbleType.kBothRumble, 0.5))),
+        checkPossibility(),
         new SequentialCommandGroup(
             m_ShooterSubsystem.setShooterRPM(5500).alongWith(m_ShooterSubsystem.setShooterAngle()),
             new WaitUntilCommand(
@@ -162,9 +160,19 @@ public class RobotContainer {
             m_FeederSubsystem.setFeederSpeed(1)));
   }
 
+  private Command checkPossibility() {
+    return new WaitUntilCommand(() -> !LimelightHelpers.isPossible() || !m_FeederSubsystem.hasNote())
+        .andThen(new InstantCommand(() -> driverController.getHID().setRumble(RumbleType.kBothRumble, 0.5)));
+  }
+
+  private Command checkPossibilityNoVision() {
+    return new WaitUntilCommand(() -> !LimelightHelpers.isPossible() || !m_FeederSubsystem.hasNote())
+        .andThen(new InstantCommand(() -> driverController.getHID().setRumble(RumbleType.kBothRumble, 0.5)));
+  }
+
   private Command stopShooter() {
     return m_ShooterSubsystem.stopShooterMotors()
-        .alongWith(new InstantCommand(() -> driverController.getHID().setRumble(RumbleType.kBothRumble, 0)));
+        .alongWith(resetRumble());
   }
 
   private Command enableClimber() {

@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
@@ -51,7 +52,10 @@ public class RobotContainer {
 
   private void configurePathPlanner() {
     NamedCommands.registerCommand("IntakeInit", intakeGrabNote());
-    NamedCommands.registerCommand("ShootNote", automaticMovingShootNote());
+    NamedCommands.registerCommand("ShootNote", automaticMovingShootNote()
+        .andThen(new WaitUntilCommand(() -> !m_FeederSubsystem.hasNote()))
+        .andThen(new WaitCommand(0.3))
+        .andThen(stopShooter().alongWith(stopFeeder())));
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData(autoChooser);
   }
@@ -65,7 +69,7 @@ public class RobotContainer {
         new CustomCommandRunner(intakeGrabNote(), stopIntake().alongWith(stopFeeder()).alongWith(resetRumble())));
 
     // Set Angle And Shoot
-    driverController.rightTrigger().whileTrue(automaticShootNote()).onFalse(stopShooter().alongWith(stopFeeder()));
+    driverController.rightTrigger().whileTrue(automaticShootNote()).onFalse(stopShooter().alongWith(stopFeeder()).alongWith(resetRumble()));
 
     // Rotate To Target
     driverController.leftTrigger().whileTrue(new RotateToTarget(m_robotDrive))
@@ -82,16 +86,20 @@ public class RobotContainer {
 
     // Automatic AMP Shoot
     driverController.b().whileTrue(automaticAmpShoot())
-        .onFalse(stopShooter().alongWith(stopFeeder()).alongWith(m_ShooterSubsystem.setOvverideAngle(0)));
+        .onFalse(stopShooter().alongWith(stopFeeder()).alongWith(m_ShooterSubsystem.setOvverideAngle(0)).alongWith(resetRumble()));
 
     // Automatic Eject Shoot
     driverController.a().whileTrue(ejectShoot())
-        .onFalse(stopShooter().alongWith(stopFeeder()).alongWith(m_ShooterSubsystem.setOvverideAngle(0)));
+        .onFalse(stopShooter().alongWith(stopFeeder()).alongWith(m_ShooterSubsystem.setOvverideAngle(0)).alongWith(resetRumble()));
   }
 
   // Commands
   private Command intakeGrabNote() {
-    return new SequentialCommandGroup(m_ShooterSubsystem.setOvverideAngle(30),
+    return new SequentialCommandGroup(
+        new ParallelRaceGroup(new WaitUntilCommand(() -> !m_FeederSubsystem.hasNote()),
+            new InstantCommand(() -> driverController.getHID().setRumble(RumbleType.kBothRumble, 0.5))),
+        resetRumble(),
+        m_ShooterSubsystem.setOvverideAngle(0),
         new WaitUntilCommand(() -> m_ShooterSubsystem.shooterHingeAtGoal()),
         m_IntakeSubsystem.setIntakeSpeed(1).alongWith(m_FeederSubsystem.setFeederSpeed(0.4)),
         new WaitUntilCommand(() -> m_FeederSubsystem.hasNote()),

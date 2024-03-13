@@ -408,9 +408,10 @@ public class LimelightHelpers {
 
     // Function to calculate the required shooting angle for a given distance
     public static double calculateShootingAngle() {
-        if (SmartDashboard.getNumber("Manual Shooter Angle", 0) > 0)
-            return SmartDashboard.getNumber("Manual Shooter Angle", 0);
-            
+        double manualAngle = SmartDashboard.getNumber("Manual Shooter Angle", 0);
+        if (manualAngle > 0)
+            return manualAngle;
+
         if (!getTV(""))
             return -1.0;
 
@@ -419,6 +420,12 @@ public class LimelightHelpers {
         double distanceRatio = (targetDistance - MIN_DISTANCE) / (MAX_DISTANCE - MIN_DISTANCE);
 
         double angle = MIN_ANGLE + (MAX_ANGLE - MIN_ANGLE) * distanceRatio;
+
+        if (angle > MAX_ANGLE)
+            angle = MAX_ANGLE;
+
+        if (angle < MIN_ANGLE)
+            angle = MIN_ANGLE;
 
         return angle;
     }

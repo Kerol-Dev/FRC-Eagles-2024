@@ -25,7 +25,7 @@ import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 public class RobotContainer {
-  public final CommandXboxController driverController = new CommandXboxController(OIConstants.kDriverControllerPort);
+  public static final CommandXboxController driverController = new CommandXboxController(OIConstants.kDriverControllerPort);
 
   public final DriveSubsystem m_robotDrive = new DriveSubsystem();
   public final ClimbSubsystem m_ClimbSubsystem = new ClimbSubsystem();
@@ -43,7 +43,7 @@ public class RobotContainer {
                 MathUtil.applyDeadband(driverController.getLeftX(), OIConstants.kDriveDeadband),
                 MathUtil.applyDeadband(driverController.getRightX(), OIConstants.kDriveDeadband),
                 true,
-                driverController.b().getAsBoolean()),
+                false),
             m_robotDrive));
 
     m_robotDrive.setDefaultCommand(m_ShooterSubsystem.setShooterAngle());

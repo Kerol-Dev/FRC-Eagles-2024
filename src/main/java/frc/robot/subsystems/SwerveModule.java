@@ -142,10 +142,10 @@ public class SwerveModule {
 
   @SuppressWarnings("deprecation")
   public void updateSmartDashboard() {
-    SmartDashboard.putNumber("Cancoder_" + m_canEncoder.getDeviceID(),
+    SmartDashboard.putNumber("Cancoder " + m_canEncoder.getDeviceID(),
         getCanCoder().getDegrees());
-    SmartDashboard.putNumber("Turning Angle" + m_canEncoder.getDeviceID(), Math.toDegrees((Math.abs(m_turningEncoder.getPosition()) % (2.0 * Math.PI))));
-    SmartDashboard.putNumber("Driving Distance" + m_canEncoder.getDeviceID(), m_drivingEncoder.getPosition());
+    SmartDashboard.putNumber("Turning Angle " + m_canEncoder.getDeviceID(), Math.toDegrees((Math.abs(m_turningEncoder.getPosition()) % (2.0 * Math.PI))));
+    SmartDashboard.putNumber("Driving Distance " + m_canEncoder.getDeviceID(), m_drivingEncoder.getPosition());
   }
 
   public void setDesiredState(SwerveModuleState desiredState) {
@@ -180,9 +180,7 @@ public class SwerveModule {
     return Rotation2d.fromDegrees((m_canEncoder.getAbsolutePosition()));
   }
 
-  @SuppressWarnings("deprecation")
   public void resetToAbsolute() {
-    System.out.println(m_canEncoder.getDeviceID() + " Offset: " + encoderOffset2d.getDegrees());
     double absolutePosition = getCanCoder().getRadians() - encoderOffset2d.getRadians();
     m_turningEncoder.setPosition(absolutePosition);
 

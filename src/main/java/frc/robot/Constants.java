@@ -50,6 +50,7 @@ public final class Constants {
     public static final float kRearRightcanCoderOffset = 131.6f;
 
     public static final boolean kGyroReversed = false;
+    public static final double kGyroOffset = 180.0;
   }
 
   public static final class ModuleConstants {

@@ -35,15 +35,13 @@ public class Robot extends LoggedRobot {
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
 
-    if(DriverStation.isDisabled())
-    {
-      if(LimelightHelpers.getTV(""))
-      {
+    if (DriverStation.isDisabled()) {
+      if (LimelightHelpers.getTV("")) {
         LimelightHelpers.setLEDMode_ForceBlink("");
         return;
       }
-    }
-    LimelightHelpers.setLEDMode_ForceOff("");
+    } else
+      LimelightHelpers.setLEDMode_ForceOff("");
   }
 
   @Override
@@ -58,7 +56,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void autonomousPeriodic() {
-    m_robotContainer.driverController.getHID().setRumble(RumbleType.kBothRumble, 0);
+    RobotContainer.driverController.getHID().setRumble(RumbleType.kBothRumble, 0);
   }
 
   @Override

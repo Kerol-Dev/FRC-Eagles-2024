@@ -401,19 +401,19 @@ public class LimelightHelpers {
     }
 
     // Constants defined outside the function
-    public final static double MIN_DISTANCE = 1;
-    public final static double MAX_DISTANCE = 4;
-    final static double MIN_ANGLE = 30;
-    final static double MAX_ANGLE = 60;
+    public final static double MIN_DISTANCE = 2;
+    public final static double MAX_DISTANCE = 5;
+    final static double MIN_ANGLE = -2;
+    final static double MAX_ANGLE = -15;
 
     // Function to calculate the required shooting angle for a given distance
     public static double calculateShootingAngle() {
         double manualAngle = SmartDashboard.getNumber("Manual Shooter Angle", 0);
-        if (manualAngle > 0)
+        if (manualAngle < 0)
             return manualAngle;
 
         if (!getTV(""))
-            return -1.0;
+            return 1;
 
         double targetDistance = LimelightHelpers.getTargetPose3d_CameraSpace("").getZ();
 
@@ -421,10 +421,10 @@ public class LimelightHelpers {
 
         double angle = MIN_ANGLE + (MAX_ANGLE - MIN_ANGLE) * distanceRatio;
 
-        if (angle > MAX_ANGLE)
+        if (angle < MAX_ANGLE)
             angle = MAX_ANGLE;
 
-        if (angle < MIN_ANGLE)
+        if (angle > MIN_ANGLE)
             angle = MIN_ANGLE;
 
         return angle;

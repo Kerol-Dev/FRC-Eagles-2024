@@ -7,6 +7,7 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -14,25 +15,26 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
 
 public class ShooterSubsystem extends SubsystemBase {
-    private final CANSparkMax shooterMotorUpper = new CANSparkMax(31, MotorType.kBrushless);
-    private final CANSparkMax shooterMotorLower = new CANSparkMax(41, MotorType.kBrushless);
-    private final CANSparkMax shooterMotorHinge = new CANSparkMax(51, MotorType.kBrushless);
+    private final CANSparkMax shooterMotorUpper = new CANSparkMax(12, MotorType.kBrushless);
+    private final CANSparkMax shooterMotorLower = new CANSparkMax(11, MotorType.kBrushless);
+    private final CANSparkMax shooterMotorHinge = new CANSparkMax(16, MotorType.kBrushless);
 
+    public final DigitalInput shooterHome = new DigitalInput(1);
     private SparkPIDController shooterMotorUpperPID;
     private SparkPIDController shooterMotorLowerPID;
     private SparkPIDController shooterMotorHingePID;
 
-    private double velocityKp = 1;
+    private double velocityKp = 0.01;
     private double velocityKi = 0;
     private double velocityKd = 0;
 
-    private double positionKp = 1;
+    private double positionKp = 0.35;
     private double positionKi = 0;
     private double positionKd = 0;
-    private double positionMaxOutput = 0.4;
+    private double positionMaxOutput = 0.5;
 
     private int RPMTolerance = 50;
-    private int angleTolerance = 1;
+    private double angleTolerance = 0.5;
 
     public double goalAngle = 0;
     public double ovverideAngle = 0;
@@ -41,6 +43,7 @@ public class ShooterSubsystem extends SubsystemBase {
         shooterMotorUpper.restoreFactoryDefaults();
         shooterMotorUpper.setIdleMode(IdleMode.kCoast);
         shooterMotorUpper.setInverted(false);
+        shooterMotorUpperPID = shooterMotorUpper.getPIDController();
         shooterMotorUpperPID.setFeedbackDevice(shooterMotorUpper.getEncoder());
 
         shooterMotorUpperPID.setP(velocityKp);
@@ -50,6 +53,7 @@ public class ShooterSubsystem extends SubsystemBase {
         shooterMotorLower.restoreFactoryDefaults();
         shooterMotorLower.setIdleMode(IdleMode.kCoast);
         shooterMotorLower.setInverted(false);
+        shooterMotorLowerPID = shooterMotorLower.getPIDController();
         shooterMotorLowerPID.setFeedbackDevice(shooterMotorLower.getEncoder());
 
         shooterMotorLowerPID.setP(velocityKp);
@@ -57,8 +61,9 @@ public class ShooterSubsystem extends SubsystemBase {
         shooterMotorLowerPID.setD(velocityKd);
 
         shooterMotorHinge.restoreFactoryDefaults();
-        shooterMotorHinge.setIdleMode(IdleMode.kBrake);
+        shooterMotorHinge.setIdleMode(IdleMode.kCoast);
         shooterMotorHinge.setInverted(false);
+        shooterMotorHingePID = shooterMotorHinge.getPIDController();
         shooterMotorHingePID.setFeedbackDevice(shooterMotorHinge.getEncoder());
 
         shooterMotorHingePID.setP(positionKp);
@@ -66,20 +71,24 @@ public class ShooterSubsystem extends SubsystemBase {
         shooterMotorHingePID.setD(positionKd);
         shooterMotorHingePID.setOutputRange(-positionMaxOutput, positionMaxOutput);
 
+        shooterMotorHinge.getEncoder().setPosition(0);
+
         shooterMotorHinge.enableSoftLimit(SoftLimitDirection.kForward, true);
         shooterMotorHinge.enableSoftLimit(SoftLimitDirection.kReverse, true);
 
-        shooterMotorHinge.setSoftLimit(SoftLimitDirection.kForward, 90);
-        shooterMotorHinge.setSoftLimit(SoftLimitDirection.kReverse, 0);
+        shooterMotorHinge.setSoftLimit(SoftLimitDirection.kForward, -2);
+        shooterMotorHinge.setSoftLimit(SoftLimitDirection.kReverse, -15);
+        shooterMotorHingePID.setReference(-2, ControlType.kPosition);
     }
 
     @Override
     public void periodic() {
-        goalAngle = ovverideAngle > 0 ? ovverideAngle : LimelightHelpers.calculateShootingAngle();
+        goalAngle = ovverideAngle < 0 ? ovverideAngle : LimelightHelpers.calculateShootingAngle();
 
         SmartDashboard.putNumber("Upper Shooter RPM", shooterMotorUpper.getEncoder().getVelocity());
         SmartDashboard.putNumber("Lower Shooter RPM", shooterMotorLower.getEncoder().getVelocity());
         SmartDashboard.putNumber("Shooter Position", shooterMotorHinge.getEncoder().getPosition());
+        SmartDashboard.putBoolean("Home Shooter", !shooterHome.get());
     }
 
     public double getShooterRPM(boolean upper) {
@@ -87,39 +96,51 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public boolean shooterAtGoalRPM(int goalRPM) {
-        return Math.abs(getShooterRPM(true) - goalRPM) <= RPMTolerance
-                && Math.abs(getShooterRPM(false) - goalRPM) <= RPMTolerance;
+        return getShooterRPM(true) >= goalRPM || Math.abs(getShooterRPM(true) - goalRPM) <= RPMTolerance;
     }
 
     public boolean shooterHingeAtGoal() {
         return Math.abs(shooterMotorHinge.getEncoder().getPosition() - goalAngle) <= angleTolerance;
     }
 
-    public Command setShooterRPM(int goalRPM) {
+    public Command setShooterRPM(double goalRPM) {
         return Commands.runOnce(() -> setShooterRPMLocal(goalRPM));
     }
 
-    private void setShooterRPMLocal(int goalRPM) {
+    private void setShooterRPMLocal(double goalRPM) {
         if (goalRPM == 0) {
             stopShooterMotorsLocal();
             return;
         }
 
-        shooterMotorUpperPID.setReference(goalRPM, ControlType.kVelocity);
-        shooterMotorLowerPID.setReference(goalRPM, ControlType.kVelocity);
+        shooterMotorUpper.set(goalRPM);
+        shooterMotorLower.set(goalRPM);
     }
 
     public Command setShooterAngle() {
-        return Commands.runOnce(() -> setShooterAngleLocal());
+        return Commands.run(() -> setShooterAngleLocal());
     }
 
-    public Command setOvverideAngle(double angle)
-    {
+    public Command setShooterBack() {
+        return Commands.run(() -> shooterMotorHinge.set(0.15))
+                .andThen(Commands.runOnce(() -> shooterMotorHinge.enableSoftLimit(SoftLimitDirection.kForward, false)));
+    }
+
+    public Command stopShooterHinge() {
+        return Commands.run(() -> shooterMotorHinge.set(0))
+                .andThen(Commands.runOnce(() -> shooterMotorHinge.enableSoftLimit(SoftLimitDirection.kForward, true)));
+    }
+
+    public Command resetShooterPosition() {
+        return Commands.run(() -> shooterMotorHinge.getEncoder().setPosition(0));
+    }
+
+    public Command setOvverideAngle(double angle) {
         return Commands.runOnce(() -> ovverideAngle = angle);
     }
 
-    private void setShooterAngleLocal() {
-        if (goalAngle >= 0)
+    public void setShooterAngleLocal() {
+        if (goalAngle <= 0)
             shooterMotorHingePID.setReference(goalAngle, ControlType.kPosition);
     }
 
@@ -128,7 +149,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void stopShooterMotorsLocal() {
-        shooterMotorUpperPID.setReference(2500, ControlType.kVelocity);
-        shooterMotorLowerPID.setReference(2500, ControlType.kVelocity);
+        shooterMotorUpper.stopMotor();
+        shooterMotorLower.stopMotor();
     }
 }

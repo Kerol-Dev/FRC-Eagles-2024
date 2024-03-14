@@ -40,7 +40,9 @@ public class Robot extends LoggedRobot {
         LimelightHelpers.setLEDMode_ForceBlink("");
         return;
       }
-    } else
+    } else if(LimelightHelpers.isPossible())
+      LimelightHelpers.setLEDMode_ForceOn("");
+      else
       LimelightHelpers.setLEDMode_ForceOff("");
   }
 

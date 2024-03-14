@@ -10,7 +10,7 @@ public final class Constants {
     public static final double kMaxSpeedMetersPerSecond = 4.5;
     public static final double kMaxAcceleration = 2.0;
     public static final double kMaxAngularSpeed = 2 * Math.PI;
-    public static final double kMaxAngularAcceleration = 4;
+    public static final double kMaxAngularAcceleration = 2;
 
     // Chassis configuration
     public static final double kTrackWidth = 0.679;
@@ -95,6 +95,6 @@ public final class Constants {
 
   public static final class OIConstants {
     public static final int kDriverControllerPort = 0;
-    public static final double kDriveDeadband = 0.1;
+    public static final double kDriveDeadband = 0.05;
   }
 }

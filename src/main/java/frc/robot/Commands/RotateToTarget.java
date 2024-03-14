@@ -16,7 +16,7 @@ public class RotateToTarget extends Command {
     drivetrain = dt;
 
     pidRotation = new PIDController(0.02, 0, 0);
-    pidRotation.setTolerance(2);
+    pidRotation.setTolerance(0.85);
 
     addRequirements(dt);
   }

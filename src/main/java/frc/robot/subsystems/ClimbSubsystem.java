@@ -13,17 +13,17 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ClimbSubsystem extends SubsystemBase {
-    private final CANSparkMax climbMotor = new CANSparkMax(15, MotorType.kBrushless);
+    private final CANSparkMax climbMotor = new CANSparkMax(13, MotorType.kBrushless);
     private SparkPIDController climbMotorPID;
 
-    private double positionKp = 1;
+    private double positionKp = 5;
     private double positionKi = 0;
     private double positionKd = 0;
 
     public ClimbSubsystem()
     {
         climbMotor.restoreFactoryDefaults();
-        climbMotor.setIdleMode(IdleMode.kBrake);
+        climbMotor.setIdleMode(IdleMode.kCoast);
         climbMotor.setInverted(false);
         climbMotorPID = climbMotor.getPIDController();
         climbMotorPID.setFeedbackDevice(climbMotor.getEncoder());
@@ -35,8 +35,10 @@ public class ClimbSubsystem extends SubsystemBase {
         climbMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
         climbMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
 
-        climbMotor.setSoftLimit(SoftLimitDirection.kForward, 100);
-        climbMotor.setSoftLimit(SoftLimitDirection.kReverse, 0);
+        climbMotor.setSoftLimit(SoftLimitDirection.kForward, 0);
+        climbMotor.setSoftLimit(SoftLimitDirection.kReverse, -60);
+
+        climbMotor.getEncoder().setPosition(0);
     }
 
     @Override
@@ -44,9 +46,14 @@ public class ClimbSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Climb Position", climbMotor.getEncoder().getPosition());
     }
 
-    public Command setIntakePosition(boolean up)
+    public Command setClimbPosition(boolean up)
     {
-        return Commands.runOnce(() -> climbMotorPID.setReference(up ? 100 : 0, ControlType.kPosition));
+        return Commands.runOnce(() -> climbMotorPID.setReference(up ? -60 : 0, ControlType.kPosition));
+    }
+
+    public Command setClimbSpeed(double speed)
+    {
+        return Commands.runOnce(() -> climbMotor.set(-speed));
     }
 
     public Command stopClimber()

@@ -28,7 +28,7 @@ public class DriveSubsystem extends SubsystemBase {
       false,
       false,
       DriveConstants.kFrontLeftcanCoderOffset,
-      false,
+      true,
       DriveConstants.kFrontLeftChassisAngularOffset);
 
   public static final SwerveModule m_frontRight = new SwerveModule(
@@ -38,7 +38,7 @@ public class DriveSubsystem extends SubsystemBase {
       false,
       false,
       DriveConstants.kFrontRightcanCoderOffset,
-      false,
+      true,
       DriveConstants.kFrontRightChassisAngularOffset);
 
   public static final SwerveModule m_rearLeft = new SwerveModule(
@@ -48,7 +48,7 @@ public class DriveSubsystem extends SubsystemBase {
       false,
       false,
       DriveConstants.kRearLeftcanCoderOffset,
-      false,
+      true,
       DriveConstants.kRearLeftChassisAngularOffset);
 
   public static final SwerveModule m_rearRight = new SwerveModule(
@@ -58,7 +58,7 @@ public class DriveSubsystem extends SubsystemBase {
       false,
       false,
       DriveConstants.kRearRightcanCoderOffset,
-      false,
+      true,
       DriveConstants.kRearRightChassisAngularOffset);
 
   public final Field2d m_field = new Field2d();
@@ -79,9 +79,9 @@ public class DriveSubsystem extends SubsystemBase {
         this::setSpeeds,
         new HolonomicPathFollowerConfig(
             new PIDConstants(4.5),
-            new PIDConstants(2),
+            new PIDConstants(3.5),
             4.5,
-            0.4030f,
+            0.428f,
             new ReplanningConfig()),
         () -> {
           var alliance = DriverStation.getAlliance();
@@ -98,6 +98,8 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void setSpeeds(ChassisSpeeds speeds) {
+    speeds.omegaRadiansPerSecond *= -1;
+    speeds.vxMetersPerSecond *= -1;
     var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(speeds);
     SwerveDriveKinematics.desaturateWheelSpeeds(
         swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
@@ -142,9 +144,9 @@ public class DriveSubsystem extends SubsystemBase {
 
     if (slowSpeed) {
       // Convert the commanded speeds into the correct units for the drivetrain
-      xSpeedDelivered = m_magXLimiter.calculate(xSpeed * 0.2) * DriveConstants.kMaxSpeedMetersPerSecond;
-      ySpeedDelivered = m_magYLimiter.calculate(ySpeed * 0.2) * DriveConstants.kMaxSpeedMetersPerSecond;
-      rotDelivered = m_rotLimiter.calculate(rot * 0.2) * DriveConstants.kMaxAngularSpeed;
+      xSpeedDelivered = m_magXLimiter.calculate(xSpeed * 0.5) * DriveConstants.kMaxSpeedMetersPerSecond;
+      ySpeedDelivered = m_magYLimiter.calculate(ySpeed * 0.5) * DriveConstants.kMaxSpeedMetersPerSecond;
+      rotDelivered = m_rotLimiter.calculate(rot * 0.5) * DriveConstants.kMaxAngularSpeed;
 
     } else {
       // Convert the commanded speeds into the correct units for the drivetrain
@@ -157,14 +159,9 @@ public class DriveSubsystem extends SubsystemBase {
     var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
         robotCentric
             ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered,
-                Rotation2d.fromDegrees(m_gyro.getYaw() + DriveConstants.kGyroOffset))
+                Rotation2d.fromDegrees(getHeading() + DriveConstants.kGyroOffset))
             : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
-    SwerveDriveKinematics.desaturateWheelSpeeds(
-        swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
-    m_frontLeft.setDesiredState(swerveModuleStates[0]);
-    m_frontRight.setDesiredState(swerveModuleStates[1]);
-    m_rearLeft.setDesiredState(swerveModuleStates[2]);
-    m_rearRight.setDesiredState(swerveModuleStates[3]);
+    setModuleStates(swerveModuleStates);
   }
 
   public void setModuleStates(SwerveModuleState[] desiredStates) {

@@ -132,7 +132,7 @@ public class SwerveModule {
   }
 
   public SwerveModulePosition getPosition() {
-    return new SwerveModulePosition(m_drivingEncoder.getPosition(), getAngle());
+    return new SwerveModulePosition(-m_drivingEncoder.getPosition(), getAngle());
   }
 
   private Rotation2d getAngle() {
@@ -142,10 +142,10 @@ public class SwerveModule {
 
   @SuppressWarnings("deprecation")
   public void updateSmartDashboard() {
-    SmartDashboard.putNumber("Cancoder " + m_canEncoder.getDeviceID(),
+    SmartDashboard.putNumber("Cancoder_" + m_canEncoder.getDeviceID(),
         getCanCoder().getDegrees());
-    SmartDashboard.putNumber("Turning Angle " + m_canEncoder.getDeviceID(), Math.toDegrees((Math.abs(m_turningEncoder.getPosition()) % (2.0 * Math.PI))));
-    SmartDashboard.putNumber("Driving Distance " + m_canEncoder.getDeviceID(), m_drivingEncoder.getPosition());
+    SmartDashboard.putNumber("Turning Angle" + m_canEncoder.getDeviceID(), Math.toDegrees((Math.abs(m_turningEncoder.getPosition()) % (2.0 * Math.PI))));
+    SmartDashboard.putNumber("Driving Distance" + m_canEncoder.getDeviceID(), m_drivingEncoder.getPosition());
   }
 
   public void setDesiredState(SwerveModuleState desiredState) {
@@ -161,6 +161,8 @@ public class SwerveModule {
 
     // Command driving and turning SPARKS MAX towards their respective setpoints.
     m_drivingPIDController.setReference(optimizedDesiredState.speedMetersPerSecond, CANSparkMax.ControlType.kVelocity);
+    if(Math.abs(optimizedDesiredState.speedMetersPerSecond) < 0.01)
+    m_drivingSparkMax.stopMotor();
     m_turningPIDController.setReference(optimizedDesiredState.angle.getRadians(), CANSparkMax.ControlType.kPosition);
 
     m_desiredState = desiredState;

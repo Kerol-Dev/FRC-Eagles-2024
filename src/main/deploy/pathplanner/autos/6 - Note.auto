@@ -6,6 +6,12 @@
     "data": {
       "commands": [
         {
+          "type": "path",
+          "data": {
+            "pathName": "Red - Note - 1"
+          }
+        },
+        {
           "type": "named",
           "data": {
             "name": "ShootNote"
@@ -14,7 +20,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Red - Speaker - 6 - 1"
+            "pathName": "Red - Note - 2"
           }
         },
         {
@@ -26,7 +32,43 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Red - Speaker - 6 - 2"
+            "pathName": "Red - Note - 3"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ShootNote"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Red - Note - 4"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ShootNote"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Red - Note - 5"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ShootNote"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Red - Note - 6"
           }
         },
         {

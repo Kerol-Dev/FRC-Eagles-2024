@@ -6,27 +6,9 @@
     "data": {
       "commands": [
         {
-          "type": "named",
-          "data": {
-            "name": "ShootNote"
-          }
-        },
-        {
           "type": "path",
           "data": {
-            "pathName": "Red - Speaker - 5 - 1"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "ShootNote"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Red - Speaker - 5 - 2"
+            "pathName": "Red - Note - 1"
           }
         },
         {
@@ -38,7 +20,43 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Red - Speaker - 5 - 3"
+            "pathName": "Red - Note - 2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ShootNote"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Red - Note - 3"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ShootNote"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Red - Note - 4"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ShootNote"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Red - Note - 5"
           }
         },
         {

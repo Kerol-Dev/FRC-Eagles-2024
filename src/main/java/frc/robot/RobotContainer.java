@@ -25,8 +25,8 @@ public class RobotContainer {
   public static final CommandXboxController driverController = new CommandXboxController(
       OIConstants.kDriverControllerPort);
 
-      public static final CommandXboxController operatorController = new CommandXboxController(
-        1);
+  public static final CommandXboxController operatorController = new CommandXboxController(
+      1);
   public final DriveSubsystem m_robotDrive = new DriveSubsystem();
   public final ClimbSubsystem m_ClimbSubsystem = new ClimbSubsystem();
   public final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem();
@@ -123,14 +123,15 @@ public class RobotContainer {
   }
 
   private Command resetRumble() {
-    return new InstantCommand(() -> driverController.getHID().setRumble(RumbleType.kBothRumble, 0)).andThen(new InstantCommand(() -> operatorController.getHID().setRumble(RumbleType.kBothRumble, 0)));
+    return new InstantCommand(() -> driverController.getHID().setRumble(RumbleType.kBothRumble, 0))
+        .andThen(new InstantCommand(() -> operatorController.getHID().setRumble(RumbleType.kBothRumble, 0)));
   }
 
   private Command automaticAmpShoot() {
     return new ParallelDeadlineGroup(checkPossibilityNoVision(),
         m_ShooterSubsystem.setShooterRPM(1)
-        .alongWith(m_ShooterSubsystem.setOvverideAngle(-5))
-        .alongWith(m_ShooterSubsystem.setShooterAngle())
+            .alongWith(m_ShooterSubsystem.setOvverideAngle(-5))
+            .alongWith(m_ShooterSubsystem.setShooterAngle())
             .alongWith(new WaitUntilCommand(
                 () -> m_ShooterSubsystem.shooterAtGoalRPM(5400) && m_ShooterSubsystem.shooterHingeAtGoal())
                 .andThen(m_IntakeSubsystem.setIntakeSpeed(1))));

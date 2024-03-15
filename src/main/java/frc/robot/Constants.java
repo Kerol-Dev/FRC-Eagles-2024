@@ -7,7 +7,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 public final class Constants {
   public static final class DriveConstants {
 
-    public static final double kMaxSpeedMetersPerSecond = 5;
+    public static final double kMaxSpeedMetersPerSecond = 4.8;
     public static final double kMaxAcceleration = 2.5;
     public static final double kMaxAngularSpeed = 2 * Math.PI;
     public static final double kMaxAngularAcceleration = 4;

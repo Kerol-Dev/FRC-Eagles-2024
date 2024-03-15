@@ -13,6 +13,7 @@ import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleConstants;
 
 @SuppressWarnings("removal")
@@ -91,7 +92,8 @@ public class SwerveModule {
     m_turningPIDController.setPositionPIDWrappingMinInput(ModuleConstants.kTurningEncoderPositionPIDMinInput);
     m_turningPIDController.setPositionPIDWrappingMaxInput(ModuleConstants.kTurningEncoderPositionPIDMaxInput);
 
-    // m_canEncoder.getConfigurator().apply(new MagnetSensorConfigs().withAbsoluteSensorRange(AbsoluteSensorRangeValue.Unsigned_0To1));
+    // m_canEncoder.getConfigurator().apply(new
+    // MagnetSensorConfigs().withAbsoluteSensorRange(AbsoluteSensorRangeValue.Unsigned_0To1));
     // Set the PID gains for the driving motor. Note these are example gains, and
     // you
     // may need to tune them for your own robot!
@@ -132,7 +134,7 @@ public class SwerveModule {
   }
 
   public SwerveModulePosition getPosition() {
-    return new SwerveModulePosition(-m_drivingEncoder.getPosition(), getAngle());
+    return new SwerveModulePosition(m_drivingEncoder.getPosition(), getAngle());
   }
 
   private Rotation2d getAngle() {
@@ -144,7 +146,8 @@ public class SwerveModule {
   public void updateSmartDashboard() {
     SmartDashboard.putNumber("Cancoder_" + m_canEncoder.getDeviceID(),
         getCanCoder().getDegrees());
-    SmartDashboard.putNumber("Turning Angle" + m_canEncoder.getDeviceID(), Math.toDegrees((Math.abs(m_turningEncoder.getPosition()) % (2.0 * Math.PI))));
+    SmartDashboard.putNumber("Turning Angle" + m_canEncoder.getDeviceID(),
+        Math.toDegrees((Math.abs(m_turningEncoder.getPosition()) % (2.0 * Math.PI))));
     SmartDashboard.putNumber("Driving Distance" + m_canEncoder.getDeviceID(), m_drivingEncoder.getPosition());
   }
 
@@ -160,9 +163,9 @@ public class SwerveModule {
         new Rotation2d(m_turningEncoder.getPosition()));
 
     // Command driving and turning SPARKS MAX towards their respective setpoints.
-    m_drivingPIDController.setReference(optimizedDesiredState.speedMetersPerSecond, CANSparkMax.ControlType.kVelocity);
-    if(Math.abs(optimizedDesiredState.speedMetersPerSecond) < 0.01)
-    m_drivingSparkMax.stopMotor();
+    m_drivingSparkMax.set(optimizedDesiredState.speedMetersPerSecond / DriveConstants.kMaxSpeedMetersPerSecond);
+    if (Math.abs(optimizedDesiredState.speedMetersPerSecond) < 0.006)
+      m_drivingSparkMax.stopMotor();
     m_turningPIDController.setReference(optimizedDesiredState.angle.getRadians(), CANSparkMax.ControlType.kPosition);
 
     m_desiredState = desiredState;

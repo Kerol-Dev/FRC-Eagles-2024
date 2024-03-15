@@ -6,6 +6,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SPI;
@@ -68,7 +70,12 @@ public class DriveSubsystem extends SubsystemBase {
   private SlewRateLimiter m_magYLimiter = new SlewRateLimiter(DriveConstants.kMaxAcceleration);
   private SlewRateLimiter m_rotLimiter = new SlewRateLimiter(DriveConstants.kMaxAngularAcceleration);
 
-  private VisionSubsystem m_VisionSubsystem = new VisionSubsystem(this);
+  SwerveDriveOdometry odometry = new SwerveDriveOdometry(DriveConstants.kDriveKinematics,
+      Rotation2d.fromDegrees(getHeading()), new SwerveModulePosition[] {
+          DriveSubsystem.m_frontLeft.getPosition(),
+          DriveSubsystem.m_frontRight.getPosition(),
+          DriveSubsystem.m_rearLeft.getPosition(),
+          DriveSubsystem.m_rearRight.getPosition() });
 
   /** Creates a new DriveSubsystem. */
   public DriveSubsystem() {
@@ -81,11 +88,11 @@ public class DriveSubsystem extends SubsystemBase {
             new PIDConstants(1.5),
             new PIDConstants(3.5),
             4.5,
-            0.428f,
+            0.427f,
             new ReplanningConfig()),
         () -> {
           var alliance = DriverStation.getAlliance();
-          return alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red;
+          return alliance.isPresent() && alliance.get() == DriverStation.Alliance.Blue;
         }, this);
   }
 
@@ -98,9 +105,6 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void setSpeeds(ChassisSpeeds speeds) {
-    speeds.omegaRadiansPerSecond *= -1;
-    speeds.vxMetersPerSecond *= -1;
-
     var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(speeds);
     SwerveDriveKinematics.desaturateWheelSpeeds(
         swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
@@ -118,8 +122,15 @@ public class DriveSubsystem extends SubsystemBase {
     m_frontLeft.updateSmartDashboard();
     m_frontRight.updateSmartDashboard();
 
+    odometry.update(
+        Rotation2d.fromDegrees(getHeading()), new SwerveModulePosition[] {
+            DriveSubsystem.m_frontLeft.getPosition(),
+            DriveSubsystem.m_frontRight.getPosition(),
+            DriveSubsystem.m_rearLeft.getPosition(),
+            DriveSubsystem.m_rearRight.getPosition() });
+
     SmartDashboard.putData(m_gyro);
-    m_field.setRobotPose(m_VisionSubsystem.getCurrentPose());
+    m_field.setRobotPose(odometry.getPoseMeters());
     SmartDashboard.putData(m_field);
   }
 
@@ -128,7 +139,7 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public Pose2d getPose() {
-    return m_VisionSubsystem.getCurrentPose();
+    return odometry.getPoseMeters();
   }
 
   public Field2d getField() {
@@ -136,7 +147,13 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void resetOdometry(Pose2d pose) {
-    m_VisionSubsystem.setCurrentPose(pose);
+    odometry.resetPosition(
+        Rotation2d.fromDegrees(getHeading()), new SwerveModulePosition[] {
+            DriveSubsystem.m_frontLeft.getPosition(),
+            DriveSubsystem.m_frontRight.getPosition(),
+            DriveSubsystem.m_rearLeft.getPosition(),
+            DriveSubsystem.m_rearRight.getPosition() },
+        pose);
   }
 
   public void drive(double xSpeed, double ySpeed, double rot, boolean robotCentric, boolean slowSpeed) {
@@ -145,9 +162,9 @@ public class DriveSubsystem extends SubsystemBase {
 
     if (slowSpeed) {
       // Convert the commanded speeds into the correct units for the drivetrain
-      xSpeedDelivered = m_magXLimiter.calculate(xSpeed * 0.5) * DriveConstants.kMaxSpeedMetersPerSecond;
-      ySpeedDelivered = m_magYLimiter.calculate(ySpeed * 0.5) * DriveConstants.kMaxSpeedMetersPerSecond;
-      rotDelivered = m_rotLimiter.calculate(rot * 0.5) * DriveConstants.kMaxAngularSpeed;
+      xSpeedDelivered = m_magXLimiter.calculate(xSpeed * 0.3) * DriveConstants.kMaxSpeedMetersPerSecond;
+      ySpeedDelivered = m_magYLimiter.calculate(ySpeed * 0.3) * DriveConstants.kMaxSpeedMetersPerSecond;
+      rotDelivered = m_rotLimiter.calculate(rot * 0.3) * DriveConstants.kMaxAngularSpeed;
 
     } else {
       // Convert the commanded speeds into the correct units for the drivetrain

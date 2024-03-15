@@ -78,7 +78,7 @@ public class DriveSubsystem extends SubsystemBase {
         this::getSpeeds,
         this::setSpeeds,
         new HolonomicPathFollowerConfig(
-            new PIDConstants(4.5),
+            new PIDConstants(1.5),
             new PIDConstants(3.5),
             4.5,
             0.428f,
@@ -100,6 +100,7 @@ public class DriveSubsystem extends SubsystemBase {
   public void setSpeeds(ChassisSpeeds speeds) {
     speeds.omegaRadiansPerSecond *= -1;
     speeds.vxMetersPerSecond *= -1;
+
     var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(speeds);
     SwerveDriveKinematics.desaturateWheelSpeeds(
         swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
@@ -178,7 +179,7 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public double getHeading() {
-    return m_gyro.getAngle();
+    return -m_gyro.getAngle();
   }
 
   public double getTurnRate() {

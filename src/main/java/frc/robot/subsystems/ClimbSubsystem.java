@@ -23,7 +23,7 @@ public class ClimbSubsystem extends SubsystemBase {
     public ClimbSubsystem()
     {
         climbMotor.restoreFactoryDefaults();
-        climbMotor.setIdleMode(IdleMode.kCoast);
+        climbMotor.setIdleMode(IdleMode.kBrake);
         climbMotor.setInverted(false);
         climbMotorPID = climbMotor.getPIDController();
         climbMotorPID.setFeedbackDevice(climbMotor.getEncoder());
@@ -35,7 +35,7 @@ public class ClimbSubsystem extends SubsystemBase {
         climbMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
         climbMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
 
-        climbMotor.setSoftLimit(SoftLimitDirection.kForward, 0);
+        climbMotor.setSoftLimit(SoftLimitDirection.kForward, 40);
         climbMotor.setSoftLimit(SoftLimitDirection.kReverse, -60);
 
         climbMotor.getEncoder().setPosition(0);
@@ -48,7 +48,7 @@ public class ClimbSubsystem extends SubsystemBase {
 
     public Command setClimbPosition(boolean up)
     {
-        return Commands.runOnce(() -> climbMotorPID.setReference(up ? -60 : 0, ControlType.kPosition));
+        return Commands.runOnce(() -> climbMotorPID.setReference(up ? -60 : 40, ControlType.kPosition));
     }
 
     public Command setClimbSpeed(double speed)

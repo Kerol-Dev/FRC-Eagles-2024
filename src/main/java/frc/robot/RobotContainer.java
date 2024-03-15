@@ -25,6 +25,8 @@ public class RobotContainer {
   public static final CommandXboxController driverController = new CommandXboxController(
       OIConstants.kDriverControllerPort);
 
+      public static final CommandXboxController operatorController = new CommandXboxController(
+        1);
   public final DriveSubsystem m_robotDrive = new DriveSubsystem();
   public final ClimbSubsystem m_ClimbSubsystem = new ClimbSubsystem();
   public final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem();
@@ -55,8 +57,7 @@ public class RobotContainer {
   private void configurePathPlanner() {
     NamedCommands.registerCommand("IntakeInit", intakeGrabNote());
     NamedCommands.registerCommand("ShootNote", automaticShootNote()
-        .andThen(new WaitUntilCommand(() -> !m_IntakeSubsystem.hasNote()))
-        .andThen(new WaitCommand(0.3)));
+        .andThen(new WaitUntilCommand(() -> !m_IntakeSubsystem.hasNote()).andThen(new WaitCommand(0.3))));
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData(autoChooser);
   }
@@ -66,7 +67,7 @@ public class RobotContainer {
     driverController.start().onTrue(new InstantCommand(() -> m_robotDrive.zeroHeading()));
 
     // Intake Grab Note
-    driverController.x().whileTrue(
+    operatorController.x().whileTrue(
         intakeGrabNote()).onFalse(stopIntake().alongWith(resetRumble()));
 
     // Set Angle And Shoot
@@ -78,10 +79,10 @@ public class RobotContainer {
         .onFalse(new InstantCommand(() -> m_robotDrive.drive(0, 0, 0, true, false)));
 
     // Enable Climber
-    driverController.povUp().whileTrue(enableClimber()).onFalse(stopClimber());
+    operatorController.povUp().whileTrue(enableClimber()).onFalse(stopClimber());
 
     // Disable Climber
-    driverController.povDown().whileTrue(disableClimber()).onFalse(stopClimber());
+    operatorController.povDown().whileTrue(disableClimber()).onFalse(stopClimber());
 
     // Automatic AMP Shoot
     driverController.b().whileTrue(automaticAmpShoot())
@@ -96,7 +97,7 @@ public class RobotContainer {
     driverController.y().whileTrue(m_ShooterSubsystem.setShooterAngle());
 
     // Automatic Eject Shoot
-    driverController.a().whileTrue(ejectShoot())
+    operatorController.a().whileTrue(ejectShoot())
         .onFalse(resetShooter());
 
     // Toggle Slow Speed
@@ -106,9 +107,9 @@ public class RobotContainer {
   // Commands
   private Command intakeGrabNote() {
     return new ParallelDeadlineGroup(new WaitUntilCommand(() -> m_IntakeSubsystem.hasNote()),
-        m_IntakeSubsystem.setIntakeSpeed(0.6))
+        m_IntakeSubsystem.setIntakeSpeed(0.4))
         .andThen(stopIntake())
-        .andThen(new InstantCommand(() -> driverController.getHID().setRumble(RumbleType.kBothRumble, 0.5)))
+        .andThen(new InstantCommand(() -> operatorController.getHID().setRumble(RumbleType.kBothRumble, 0.5)))
         .andThen(new WaitCommand(0.5))
         .andThen(resetRumble());
   }
@@ -122,7 +123,7 @@ public class RobotContainer {
   }
 
   private Command resetRumble() {
-    return new InstantCommand(() -> driverController.getHID().setRumble(RumbleType.kBothRumble, 0));
+    return new InstantCommand(() -> driverController.getHID().setRumble(RumbleType.kBothRumble, 0)).andThen(new InstantCommand(() -> operatorController.getHID().setRumble(RumbleType.kBothRumble, 0)));
   }
 
   private Command automaticAmpShoot() {

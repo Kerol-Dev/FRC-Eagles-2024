@@ -18,7 +18,7 @@ public class VisionSubsystem extends SubsystemBase {
   public VisionSubsystem(DriveSubsystem swerve) {
     this.swerve = swerve;
     poseEst = new SwerveDrivePoseEstimator(DriveConstants.kDriveKinematics,
-        Rotation2d.fromDegrees(-swerve.getHeading()),
+        Rotation2d.fromDegrees(swerve.getHeading()),
         new SwerveModulePosition[] {
             DriveSubsystem.m_frontLeft.getPosition(),
             DriveSubsystem.m_frontRight.getPosition(),
@@ -28,7 +28,7 @@ public class VisionSubsystem extends SubsystemBase {
   }
 
   public void periodic() {
-    poseEst.update(Rotation2d.fromDegrees(-swerve.getHeading()), new SwerveModulePosition[] {
+    poseEst.update(Rotation2d.fromDegrees(swerve.getHeading()), new SwerveModulePosition[] {
         DriveSubsystem.m_frontLeft.getPosition(),
         DriveSubsystem.m_frontRight.getPosition(),
         DriveSubsystem.m_rearLeft.getPosition(),
@@ -36,7 +36,7 @@ public class VisionSubsystem extends SubsystemBase {
 
     var blueRightResult = LimelightHelpers.getLatestResults("").targetingResults;
 
-    Pose2d blueRightBotPose = new Pose2d(blueRightResult.getBotPose2d_wpiBlue().getTranslation(), Rotation2d.fromDegrees(-swerve.getHeading()));
+    Pose2d blueRightBotPose = blueRightResult.getBotPose2d_wpiBlue();
 
     double rightTimestamp = Timer.getFPGATimestamp() - (blueRightResult.latency_capture / 1000.0)
         - (blueRightResult.latency_pipeline / 1000.0);
@@ -47,7 +47,7 @@ public class VisionSubsystem extends SubsystemBase {
       }
     }
 
-    SmartDashboard.putNumber("Limelight Tx", LimelightHelpers.getTX(""));
+    SmartDashboard.putNumber("Limelight Tx  ", LimelightHelpers.getTX(""));
     SmartDashboard.putNumber("Limelight 3D X", LimelightHelpers.getTargetPose3d_CameraSpace("").getX());
     SmartDashboard.putNumber("Limelight 3D Z", LimelightHelpers.getTargetPose3d_CameraSpace("").getZ());
   }
@@ -65,7 +65,7 @@ public class VisionSubsystem extends SubsystemBase {
   }
 
   public void setCurrentPose(Pose2d newPose) {
-    poseEst.resetPosition(Rotation2d.fromDegrees(-swerve.getHeading()), new SwerveModulePosition[] {
+    poseEst.resetPosition(Rotation2d.fromDegrees(swerve.getHeading()), new SwerveModulePosition[] {
         DriveSubsystem.m_frontLeft.getPosition(),
         DriveSubsystem.m_frontRight.getPosition(),
         DriveSubsystem.m_rearLeft.getPosition(),

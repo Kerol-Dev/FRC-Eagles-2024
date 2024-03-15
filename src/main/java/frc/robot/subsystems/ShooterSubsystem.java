@@ -17,7 +17,7 @@ import frc.robot.LimelightHelpers;
 public class ShooterSubsystem extends SubsystemBase {
     private final CANSparkMax shooterMotorUpper = new CANSparkMax(12, MotorType.kBrushless);
     private final CANSparkMax shooterMotorLower = new CANSparkMax(11, MotorType.kBrushless);
-    private final CANSparkMax shooterMotorHinge = new CANSparkMax(16, MotorType.kBrushless);
+    private final CANSparkMax shooterMotorHinge = new CANSparkMax(14, MotorType.kBrushless);
 
     public final DigitalInput shooterHome = new DigitalInput(1);
     private SparkPIDController shooterMotorUpperPID;
@@ -33,8 +33,8 @@ public class ShooterSubsystem extends SubsystemBase {
     private double positionKd = 0;
     private double positionMaxOutput = 0.5;
 
-    private int RPMTolerance = 50;
-    private double angleTolerance = 0.5;
+    private int RPMTolerance = 200;
+    private double angleTolerance = 2.5;
 
     public double goalAngle = 0;
     public double ovverideAngle = 0;
@@ -77,7 +77,7 @@ public class ShooterSubsystem extends SubsystemBase {
         shooterMotorHinge.enableSoftLimit(SoftLimitDirection.kReverse, true);
 
         shooterMotorHinge.setSoftLimit(SoftLimitDirection.kForward, -2);
-        shooterMotorHinge.setSoftLimit(SoftLimitDirection.kReverse, -15);
+        shooterMotorHinge.setSoftLimit(SoftLimitDirection.kReverse, -30);
         shooterMotorHingePID.setReference(-2, ControlType.kPosition);
     }
 

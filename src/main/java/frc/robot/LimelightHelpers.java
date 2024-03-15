@@ -402,9 +402,9 @@ public class LimelightHelpers {
 
     // Constants defined outside the function
     public final static double MIN_DISTANCE = 2;
-    public final static double MAX_DISTANCE = 5;
-    final static double MIN_ANGLE = -2;
-    final static double MAX_ANGLE = -15;
+    public final static double MAX_DISTANCE = 3;
+    final static double MIN_ANGLE = -5;
+    final static double MAX_ANGLE = -11;
 
     // Function to calculate the required shooting angle for a given distance
     public static double calculateShootingAngle() {
@@ -420,12 +420,6 @@ public class LimelightHelpers {
         double distanceRatio = (targetDistance - MIN_DISTANCE) / (MAX_DISTANCE - MIN_DISTANCE);
 
         double angle = MIN_ANGLE + (MAX_ANGLE - MIN_ANGLE) * distanceRatio;
-
-        if (angle < MAX_ANGLE)
-            angle = MAX_ANGLE;
-
-        if (angle > MIN_ANGLE)
-            angle = MIN_ANGLE;
 
         return angle;
     }

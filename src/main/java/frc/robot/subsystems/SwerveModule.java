@@ -49,7 +49,7 @@ public class SwerveModule {
 
     m_canEncoder = new CANCoder(cancoderID);
 
-    m_canEncoder.configSensorDirection(true);
+    m_canEncoder.configSensorDirection(encoderInverted);
 
     // Factory reset, so we get the SPARKS MAX to a known state before configuring
     // them. This is useful in case a SPARK MAX is swapped out.
@@ -139,7 +139,7 @@ public class SwerveModule {
 
   private Rotation2d getAngle() {
     return Rotation2d
-        .fromRadians((Math.abs(m_turningEncoder.getPosition()) % (2.0 * Math.PI)) - m_chassisAngularOffset);
+        .fromRadians(m_turningEncoder.getPosition() - m_chassisAngularOffset);
   }
 
   @SuppressWarnings("deprecation")

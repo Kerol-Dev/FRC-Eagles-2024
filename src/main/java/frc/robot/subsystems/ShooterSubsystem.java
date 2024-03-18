@@ -78,7 +78,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
         shooterMotorHinge.setSoftLimit(SoftLimitDirection.kForward, -2);
         shooterMotorHinge.setSoftLimit(SoftLimitDirection.kReverse, -30);
-        shooterMotorHingePID.setReference(-2, ControlType.kPosition);
+        shooterMotorHingePID.setReference(-3, ControlType.kPosition);
     }
 
     @Override

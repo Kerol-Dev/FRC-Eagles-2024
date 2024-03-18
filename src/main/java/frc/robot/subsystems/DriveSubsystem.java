@@ -23,44 +23,44 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class DriveSubsystem extends SubsystemBase {
   // Create MAXSwerveModules
-  public static final SwerveModule m_frontLeft = new SwerveModule(
+  public static final SwerveModule m_frontRight = new SwerveModule(
       DriveConstants.kFrontLeftDrivingCanId,
       DriveConstants.kFrontLeftTurningCanId,
       DriveConstants.kFrontLeftcanCoderIDCanId,
-      false,
-      false,
-      DriveConstants.kFrontLeftcanCoderOffset,
       true,
+      true,
+      DriveConstants.kFrontLeftcanCoderOffset,
+      false,
       DriveConstants.kFrontLeftChassisAngularOffset);
 
-  public static final SwerveModule m_frontRight = new SwerveModule(
+  public static final SwerveModule m_frontLeft = new SwerveModule(
       DriveConstants.kFrontRightDrivingCanId,
       DriveConstants.kFrontRightTurningCanId,
       DriveConstants.kFrontRightcanCoderIDCanId,
-      false,
-      false,
-      DriveConstants.kFrontRightcanCoderOffset,
       true,
+      true,
+      DriveConstants.kFrontRightcanCoderOffset,
+      false,
       DriveConstants.kFrontRightChassisAngularOffset);
 
-  public static final SwerveModule m_rearLeft = new SwerveModule(
+  public static final SwerveModule m_rearRight = new SwerveModule(
       DriveConstants.kRearLeftDrivingCanId,
       DriveConstants.kRearLeftTurningCanId,
       DriveConstants.kRearLeftcanCoderIDCanId,
-      false,
-      false,
-      DriveConstants.kRearLeftcanCoderOffset,
       true,
+      true,
+      DriveConstants.kRearLeftcanCoderOffset,
+      false,
       DriveConstants.kRearLeftChassisAngularOffset);
 
-  public static final SwerveModule m_rearRight = new SwerveModule(
+  public static final SwerveModule m_rearLeft = new SwerveModule(
       DriveConstants.kRearRightDrivingCanId,
       DriveConstants.kRearRightTurningCanId,
       DriveConstants.kRearRightcanCoderIDCanId,
-      false,
-      false,
-      DriveConstants.kRearRightcanCoderOffset,
       true,
+      true,
+      DriveConstants.kRearRightcanCoderOffset,
+      false,
       DriveConstants.kRearRightChassisAngularOffset);
 
   public final Field2d m_field = new Field2d();
@@ -71,7 +71,7 @@ public class DriveSubsystem extends SubsystemBase {
   private SlewRateLimiter m_rotLimiter = new SlewRateLimiter(DriveConstants.kMaxAngularAcceleration);
 
   SwerveDriveOdometry odometry = new SwerveDriveOdometry(DriveConstants.kDriveKinematics,
-      Rotation2d.fromDegrees(getHeading()), new SwerveModulePosition[] {
+      getHeading(), new SwerveModulePosition[] {
           DriveSubsystem.m_frontLeft.getPosition(),
           DriveSubsystem.m_frontRight.getPosition(),
           DriveSubsystem.m_rearLeft.getPosition(),
@@ -105,6 +105,7 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void setSpeeds(ChassisSpeeds speeds) {
+    speeds.omegaRadiansPerSecond *= -1;
     var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(speeds);
     SwerveDriveKinematics.desaturateWheelSpeeds(
         swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
@@ -123,7 +124,7 @@ public class DriveSubsystem extends SubsystemBase {
     m_frontRight.updateSmartDashboard();
 
     odometry.update(
-        Rotation2d.fromDegrees(getHeading()), new SwerveModulePosition[] {
+        getHeading(), new SwerveModulePosition[] {
             DriveSubsystem.m_frontLeft.getPosition(),
             DriveSubsystem.m_frontRight.getPosition(),
             DriveSubsystem.m_rearLeft.getPosition(),
@@ -148,7 +149,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   public void resetOdometry(Pose2d pose) {
     odometry.resetPosition(
-        Rotation2d.fromDegrees(getHeading()), new SwerveModulePosition[] {
+        getHeading(), new SwerveModulePosition[] {
             DriveSubsystem.m_frontLeft.getPosition(),
             DriveSubsystem.m_frontRight.getPosition(),
             DriveSubsystem.m_rearLeft.getPosition(),
@@ -177,7 +178,7 @@ public class DriveSubsystem extends SubsystemBase {
     var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
         robotCentric
             ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered,
-                Rotation2d.fromDegrees(getHeading() + DriveConstants.kGyroOffset))
+               getHeading())
             : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
     setModuleStates(swerveModuleStates);
   }
@@ -195,8 +196,8 @@ public class DriveSubsystem extends SubsystemBase {
     m_gyro.reset();
   }
 
-  public double getHeading() {
-    return -m_gyro.getAngle();
+  public Rotation2d getHeading() {
+    return m_gyro.getRotation2d();
   }
 
   public double getTurnRate() {

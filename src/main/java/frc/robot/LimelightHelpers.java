@@ -425,8 +425,7 @@ public class LimelightHelpers {
     }
 
     public static boolean isPossible() {
-        return getTV("") && LimelightHelpers.getTargetPose3d_CameraSpace("").getZ() >= MIN_DISTANCE
-                && LimelightHelpers.getTargetPose3d_CameraSpace("").getZ() <= MAX_DISTANCE;
+        return true;
     }
 
     public static NetworkTable getLimelightNTTable(String tableName) {

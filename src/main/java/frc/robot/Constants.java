@@ -23,10 +23,10 @@ public final class Constants {
         new Translation2d(-kWheelBase / 2, -kTrackWidth / 2),
         new Translation2d(-kWheelBase / 2, kTrackWidth / 2));
    
-    public static final double kFrontLeftChassisAngularOffset = 0;
-    public static final double kFrontRightChassisAngularOffset = 0;
-    public static final double kRearLeftChassisAngularOffset = 0;
-    public static final double kRearRightChassisAngularOffset = 0;
+    public static final double kFrontLeftChassisAngularOffset = -Math.PI;
+    public static final double kFrontRightChassisAngularOffset = Math.PI;
+    public static final double kRearLeftChassisAngularOffset = Math.PI;
+    public static final double kRearRightChassisAngularOffset = Math.PI;
 
     // SPARK MAX CAN IDs
     public static final int kFrontLeftDrivingCanId = 1;
@@ -40,17 +40,17 @@ public final class Constants {
     public static final int kRearRightTurningCanId = 8;
 
     public static final int kFrontLeftcanCoderIDCanId = 17;
-    public static final int kFrontRightcanCoderIDCanId = 18;
+    public static final int kFrontRightcanCoderIDCanId = 21;
     public static final int kRearLeftcanCoderIDCanId = 19;
     public static final int kRearRightcanCoderIDCanId = 20;
 
-    public static final float kFrontLeftcanCoderOffset = 359.5f;
-    public static final float kFrontRightcanCoderOffset = 204.4f;
-    public static final float kRearLeftcanCoderOffset = 176.4f;
-    public static final float kRearRightcanCoderOffset = 131.6f;
+    public static final float kFrontLeftcanCoderOffset = 179.3f;
+    public static final float kFrontRightcanCoderOffset = 336.0f;
+    public static final float kRearLeftcanCoderOffset = 3.3f;
+    public static final float kRearRightcanCoderOffset = 47.0f;
 
     public static final boolean kGyroReversed = false;
-    public static final double kGyroOffset = 180.0;
+    public static final double kGyroOffset = 0.0;
   }
 
   public static final class ModuleConstants {
@@ -95,6 +95,6 @@ public final class Constants {
 
   public static final class OIConstants {
     public static final int kDriverControllerPort = 0;
-    public static final double kDriveDeadband = 0.12;
+    public static final double kDriveDeadband = 0.15;
   }
 }

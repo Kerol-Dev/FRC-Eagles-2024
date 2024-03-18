@@ -107,7 +107,7 @@ public class RobotContainer {
   // Commands
   private Command intakeGrabNote() {
     return new ParallelDeadlineGroup(new WaitUntilCommand(() -> m_IntakeSubsystem.hasNote()),
-        m_IntakeSubsystem.setIntakeSpeed(0.4))
+        m_IntakeSubsystem.setIntakeSpeed(0.6))
         .andThen(stopIntake())
         .andThen(new InstantCommand(() -> operatorController.getHID().setRumble(RumbleType.kBothRumble, 0.5)))
         .andThen(new WaitCommand(0.5))

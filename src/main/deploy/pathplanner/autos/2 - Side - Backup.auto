@@ -1,6 +1,12 @@
 {
   "version": 1.0,
-  "startingPose": null,
+  "startingPose": {
+    "position": {
+      "x": 16.05,
+      "y": 4.05
+    },
+    "rotation": 0
+  },
   "command": {
     "type": "sequential",
     "data": {
@@ -8,7 +14,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Red - Note - 1"
+            "pathName": "2 - Side - Pick - 1"
           }
         },
         {
@@ -20,7 +26,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Red - Note - 2"
+            "pathName": "2 - Side - Pick - 2"
           }
         },
         {
@@ -32,31 +38,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Red - Note - 3"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "ShootNote"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Red - Note - 4"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "ShootNote"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Red - Note - 5"
+            "pathName": "2 - Side - Pick - 3"
           }
         },
         {

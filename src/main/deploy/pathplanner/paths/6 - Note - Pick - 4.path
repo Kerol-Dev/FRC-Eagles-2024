@@ -3,53 +3,59 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 13.715795534301481,
-        "y": 5.555429041892566
+        "x": 12.486157696994423,
+        "y": 5.925683292165444
       },
       "prevControl": null,
       "nextControl": {
-        "x": 13.715795534301481,
-        "y": 7.555429041892566
+        "x": 12.919458649188341,
+        "y": 6.066213330714821
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 8.305389050150424,
-        "y": 7.436381206571257
+        "x": 13.69,
+        "y": 6.253586715447326
       },
       "prevControl": {
-        "x": 9.305389050150424,
-        "y": 7.436381206571257
+        "x": 13.246345931783397,
+        "y": 6.102341010373485
       },
       "nextControl": {
-        "x": 7.305389050150424,
-        "y": 7.436381206571257
+        "x": 14.205276808014387,
+        "y": 6.4292492636340475
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 13.715795534301481,
-        "y": 5.555429041892566
+        "x": 13.69237386120992,
+        "y": 6.956236908194216
       },
       "prevControl": {
-        "x": 13.715795534301481,
-        "y": 6.555429041892566
+        "x": 13.879747245942422,
+        "y": 6.8157068696448375
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": null
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.75,
+      "rotationDegrees": -128.0,
+      "rotateFast": true
+    }
+  ],
   "constraintZones": [],
   "eventMarkers": [
     {
       "name": "IntakeInit",
-      "waypointRelativePos": 0.65,
+      "waypointRelativePos": 0.75,
       "command": {
         "type": "parallel",
         "data": {
@@ -73,13 +79,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0,
-    "rotateFast": false
+    "rotation": -53.97262661489639,
+    "rotateFast": true
   },
   "reversed": false,
-  "folder": "5 - Note - Basic",
+  "folder": "6 - Note - Main",
   "previewStartingState": {
-    "rotation": 0,
+    "rotation": -11.410000000000025,
     "velocity": 0
   },
   "useDefaultConstraints": true

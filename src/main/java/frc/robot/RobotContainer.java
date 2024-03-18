@@ -57,7 +57,7 @@ public class RobotContainer {
   private void configurePathPlanner() {
     NamedCommands.registerCommand("IntakeInit", intakeGrabNote());
     NamedCommands.registerCommand("ShootNote", automaticShootNote()
-        .andThen(new WaitUntilCommand(() -> !m_IntakeSubsystem.hasNote()).andThen(new WaitCommand(0.3))));
+        .andThen(new WaitUntilCommand(() -> !m_IntakeSubsystem.hasNote()).andThen(new WaitCommand(0.2))));
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData(autoChooser);
   }

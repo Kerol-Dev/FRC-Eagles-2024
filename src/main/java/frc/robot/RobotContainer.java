@@ -47,8 +47,8 @@ public class RobotContainer {
                 slowSpeedEnabled),
             m_robotDrive));
 
-    // m_ShooterSubsystem.setDefaultCommand(new RunCommand(() ->
-    // m_ShooterSubsystem.setShooterAngleLocal(), m_ShooterSubsystem));
+    m_ShooterSubsystem.setDefaultCommand(new RunCommand(() ->
+    m_ShooterSubsystem.setShooterAngleLocal(), m_ShooterSubsystem));
 
     configureButtonBindings();
     configurePathPlanner();
@@ -79,10 +79,10 @@ public class RobotContainer {
         .onFalse(new InstantCommand(() -> m_robotDrive.drive(0, 0, 0, true, false)));
 
     // Enable Climber
-    operatorController.povUp().whileTrue(enableClimber()).onFalse(stopClimber());
+    operatorController.povUp().onTrue(enableClimber());
 
     // Disable Climber
-    operatorController.povDown().whileTrue(disableClimber()).onFalse(stopClimber());
+    operatorController.povDown().onFalse(disableClimber());
 
     // Automatic AMP Shoot
     driverController.b().whileTrue(automaticAmpShoot())
@@ -93,8 +93,14 @@ public class RobotContainer {
         m_ShooterSubsystem.setShooterBack().alongWith(new WaitUntilCommand(() -> !m_ShooterSubsystem.shooterHome.get())
             .andThen(m_ShooterSubsystem.stopShooterHinge().alongWith(m_ShooterSubsystem.resetShooterPosition()))));
 
+    // Reset After Climb
+    driverController.povLeft().onTrue(m_ShooterSubsystem.setOvverideAngle(0));
+
     // Set Angle Manual (Testing)
     driverController.y().whileTrue(m_ShooterSubsystem.setShooterAngle());
+
+    operatorController.rightBumper().whileTrue(m_ClimbSubsystem.setClimbSpeed(0.2)).onFalse(m_ClimbSubsystem.stopClimber());
+    operatorController.leftBumper().whileTrue(m_ClimbSubsystem.setClimbSpeed(-0.2)).onFalse(m_ClimbSubsystem.stopClimber());
 
     // Automatic Eject Shoot
     operatorController.a().whileTrue(ejectShoot())
@@ -170,15 +176,11 @@ public class RobotContainer {
   }
 
   private Command enableClimber() {
-    return m_ClimbSubsystem.setClimbPosition(true);
+    return m_ShooterSubsystem.setOvverideAngle(-29).andThen(new WaitUntilCommand(() -> m_ShooterSubsystem.shooterHingeAtGoal()).andThen(m_ClimbSubsystem.setClimbPosition(true)));
   }
 
   private Command disableClimber() {
-    return m_ClimbSubsystem.setClimbPosition(false);
-  }
-
-  private Command stopClimber() {
-    return m_ClimbSubsystem.stopClimber();
+    return m_ShooterSubsystem.setOvverideAngle(-29).andThen(new WaitUntilCommand(() -> m_ShooterSubsystem.shooterHingeAtGoal()).andThen(m_ClimbSubsystem.setClimbPosition(false)));
   }
 
   public Command getAutonomousCommand() {

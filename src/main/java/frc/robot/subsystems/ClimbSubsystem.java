@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ClimbSubsystem extends SubsystemBase {
-    private final CANSparkMax climbMotor = new CANSparkMax(13, MotorType.kBrushless);
+    public final CANSparkMax climbMotor = new CANSparkMax(13, MotorType.kBrushless);
     private SparkPIDController climbMotorPID;
 
     private double positionKp = 5;
@@ -37,10 +37,10 @@ public class ClimbSubsystem extends SubsystemBase {
         climbMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
         climbMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
 
-        climbMotor.setSoftLimit(SoftLimitDirection.kForward, 45);
-        climbMotor.setSoftLimit(SoftLimitDirection.kReverse, -58);
+        climbMotor.setSoftLimit(SoftLimitDirection.kForward, 30);
+        climbMotor.setSoftLimit(SoftLimitDirection.kReverse, -55);
 
-        climbMotor.getEncoder().setPosition(0);
+        climbMotorPID.setReference(0, ControlType.kPosition);
     }
 
     @Override
@@ -50,7 +50,12 @@ public class ClimbSubsystem extends SubsystemBase {
 
     public Command setClimbPosition(boolean up)
     {
-        return Commands.runOnce(() -> climbMotorPID.setReference(up ? -57 : 43, ControlType.kPosition));
+        return Commands.runOnce(() -> climbMotorPID.setReference(up ? -54 : 29, ControlType.kPosition));
+    }
+
+    public Command resetClimbPosition()
+    {
+        return Commands.runOnce(() -> climbMotor.getEncoder().setPosition(0));
     }
 
     public Command setClimbSpeed(double speed)

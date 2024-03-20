@@ -6,7 +6,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -27,7 +26,7 @@ public class DriveSubsystem extends SubsystemBase {
       DriveConstants.kFrontLeftDrivingCanId,
       DriveConstants.kFrontLeftTurningCanId,
       DriveConstants.kFrontLeftcanCoderIDCanId,
-      true,
+      false,
       true,
       DriveConstants.kFrontLeftcanCoderOffset,
       false,
@@ -37,7 +36,7 @@ public class DriveSubsystem extends SubsystemBase {
       DriveConstants.kFrontRightDrivingCanId,
       DriveConstants.kFrontRightTurningCanId,
       DriveConstants.kFrontRightcanCoderIDCanId,
-      true,
+      false,
       true,
       DriveConstants.kFrontRightcanCoderOffset,
       false,
@@ -47,7 +46,7 @@ public class DriveSubsystem extends SubsystemBase {
       DriveConstants.kRearLeftDrivingCanId,
       DriveConstants.kRearLeftTurningCanId,
       DriveConstants.kRearLeftcanCoderIDCanId,
-      true,
+      false,
       true,
       DriveConstants.kRearLeftcanCoderOffset,
       false,
@@ -57,7 +56,7 @@ public class DriveSubsystem extends SubsystemBase {
       DriveConstants.kRearRightDrivingCanId,
       DriveConstants.kRearRightTurningCanId,
       DriveConstants.kRearRightcanCoderIDCanId,
-      true,
+      false,
       true,
       DriveConstants.kRearRightcanCoderOffset,
       false,
@@ -70,13 +69,7 @@ public class DriveSubsystem extends SubsystemBase {
   private SlewRateLimiter m_magYLimiter = new SlewRateLimiter(DriveConstants.kMaxAcceleration);
   private SlewRateLimiter m_rotLimiter = new SlewRateLimiter(DriveConstants.kMaxAngularAcceleration);
 
-  SwerveDriveOdometry odometry = new SwerveDriveOdometry(DriveConstants.kDriveKinematics,
-      getHeading(), new SwerveModulePosition[] {
-          DriveSubsystem.m_frontLeft.getPosition(),
-          DriveSubsystem.m_frontRight.getPosition(),
-          DriveSubsystem.m_rearLeft.getPosition(),
-          DriveSubsystem.m_rearRight.getPosition() });
-
+  private VisionSubsystem visionSubsystem = new VisionSubsystem(this);
   /** Creates a new DriveSubsystem. */
   public DriveSubsystem() {
     AutoBuilder.configureHolonomic(
@@ -105,7 +98,6 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void setSpeeds(ChassisSpeeds speeds) {
-    speeds.omegaRadiansPerSecond *= -1;
     var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(speeds);
     SwerveDriveKinematics.desaturateWheelSpeeds(
         swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
@@ -123,15 +115,8 @@ public class DriveSubsystem extends SubsystemBase {
     m_frontLeft.updateSmartDashboard();
     m_frontRight.updateSmartDashboard();
 
-    odometry.update(
-        getHeading(), new SwerveModulePosition[] {
-            DriveSubsystem.m_frontLeft.getPosition(),
-            DriveSubsystem.m_frontRight.getPosition(),
-            DriveSubsystem.m_rearLeft.getPosition(),
-            DriveSubsystem.m_rearRight.getPosition() });
-
     SmartDashboard.putData(m_gyro);
-    m_field.setRobotPose(odometry.getPoseMeters());
+    m_field.setRobotPose(visionSubsystem.poseEst.getEstimatedPosition());
     SmartDashboard.putData(m_field);
   }
 
@@ -140,7 +125,7 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public Pose2d getPose() {
-    return odometry.getPoseMeters();
+    return visionSubsystem.poseEst.getEstimatedPosition();
   }
 
   public Field2d getField() {
@@ -148,7 +133,7 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void resetOdometry(Pose2d pose) {
-    odometry.resetPosition(
+    visionSubsystem.poseEst.resetPosition(
         getHeading(), new SwerveModulePosition[] {
             DriveSubsystem.m_frontLeft.getPosition(),
             DriveSubsystem.m_frontRight.getPosition(),

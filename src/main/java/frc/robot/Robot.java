@@ -6,12 +6,14 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
@@ -36,20 +38,37 @@ public class Robot extends LoggedRobot {
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
 
+    if (DriverStation.isAutonomousEnabled()) {
+      LimelightHelpers.setLEDMode_ForceOff("");
+      return;
+    }
+
+    if (SmartDashboard.getNumber("Manual Shooter Angle", 0) > 0) {
+      LimelightHelpers.setLEDMode_ForceOff("");
+      return;
+    }
+
     if (DriverStation.isDisabled()) {
       if (LimelightHelpers.getTV("")) {
+        LimelightHelpers.setLEDMode_ForceOff("");
+      } else
         LimelightHelpers.setLEDMode_ForceBlink("");
-        return;
-      }
-    } else if(LimelightHelpers.isPossible())
-      LimelightHelpers.setLEDMode_ForceOn("");
-      else
+
+    } else if (LimelightHelpers.isPossible())
       LimelightHelpers.setLEDMode_ForceOff("");
+    else
+      LimelightHelpers.setLEDMode_ForceOn("");
+  }
+
+  @Override
+  public void disabledInit() {
+    m_robotContainer.m_ClimbSubsystem.climbMotor.getEncoder().setPosition(Preferences.getDouble("ClimbPos", 0));
   }
 
   @Override
   public void autonomousInit() {
     DriveSubsystem.resetEncoders();
+    ShooterSubsystem.shooterMotorHinge.getEncoder().setPosition(0);
     LimelightHelpers.setPipelineIndex("", 1);
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
@@ -71,6 +90,11 @@ public class Robot extends LoggedRobot {
     }
 
     m_robotContainer.m_ShooterSubsystem.stopShooterMotorsLocal();
+  }
+
+  @Override
+  public void teleopExit() {
+      Preferences.setDouble("ClimbPos", m_robotContainer.m_ClimbSubsystem.climbMotor.getEncoder().getPosition());
   }
 
   @Override

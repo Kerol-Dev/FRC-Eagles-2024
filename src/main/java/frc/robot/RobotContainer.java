@@ -40,15 +40,15 @@ public class RobotContainer {
     m_robotDrive.setDefaultCommand(
         new RunCommand(
             () -> m_robotDrive.drive(
-                MathUtil.applyDeadband(driverController.getLeftY(), OIConstants.kDriveDeadband),
+                -MathUtil.applyDeadband(driverController.getLeftY(), OIConstants.kDriveDeadband),
                 -MathUtil.applyDeadband(driverController.getLeftX(), OIConstants.kDriveDeadband),
-                MathUtil.applyDeadband(driverController.getRightX(), OIConstants.kDriveDeadband),
+                -MathUtil.applyDeadband(driverController.getRightX(), OIConstants.kDriveDeadband) / 1.4,
                 true,
                 slowSpeedEnabled),
             m_robotDrive));
 
-    m_ShooterSubsystem.setDefaultCommand(new RunCommand(() ->
-    m_ShooterSubsystem.setShooterAngleLocal(), m_ShooterSubsystem));
+    m_ShooterSubsystem
+        .setDefaultCommand(new RunCommand(() -> m_ShooterSubsystem.setShooterAngleLocal(), m_ShooterSubsystem));
 
     configureButtonBindings();
     configurePathPlanner();
@@ -57,7 +57,8 @@ public class RobotContainer {
   private void configurePathPlanner() {
     NamedCommands.registerCommand("IntakeInit", intakeGrabNote());
     NamedCommands.registerCommand("ShootNote", automaticShootNote()
-        .andThen(new WaitUntilCommand(() -> !m_IntakeSubsystem.hasNote()).andThen(new WaitCommand(0.2))));
+        .andThen(new WaitUntilCommand(() -> !m_IntakeSubsystem.hasNote()).andThen(new WaitCommand(0.25))
+            .andThen(m_ShooterSubsystem.setShooterRPM(0))));
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData(autoChooser);
   }
@@ -67,7 +68,7 @@ public class RobotContainer {
     driverController.start().onTrue(new InstantCommand(() -> m_robotDrive.zeroHeading()));
 
     // Intake Grab Note
-    operatorController.x().whileTrue(
+    operatorController.b().whileTrue(
         intakeGrabNote()).onFalse(stopIntake().alongWith(resetRumble()));
 
     // Set Angle And Shoot
@@ -84,26 +85,21 @@ public class RobotContainer {
     // Disable Climber
     operatorController.povDown().onFalse(disableClimber());
 
-    // Automatic AMP Shoot
-    driverController.b().whileTrue(automaticAmpShoot())
-        .onFalse(resetShooter());
-
-    // Reset Shooter
-    driverController.povRight().whileTrue(
-        m_ShooterSubsystem.setShooterBack().alongWith(new WaitUntilCommand(() -> !m_ShooterSubsystem.shooterHome.get())
-            .andThen(m_ShooterSubsystem.stopShooterHinge().alongWith(m_ShooterSubsystem.resetShooterPosition()))));
-
-    // Reset After Climb
-    driverController.povLeft().onTrue(m_ShooterSubsystem.setOvverideAngle(0));
-
     // Set Angle Manual (Testing)
-    driverController.y().whileTrue(m_ShooterSubsystem.setShooterAngle());
+    operatorController.start().onTrue(m_ClimbSubsystem.resetClimbPosition());
 
-    operatorController.rightBumper().whileTrue(m_ClimbSubsystem.setClimbSpeed(0.2)).onFalse(m_ClimbSubsystem.stopClimber());
-    operatorController.leftBumper().whileTrue(m_ClimbSubsystem.setClimbSpeed(-0.2)).onFalse(m_ClimbSubsystem.stopClimber());
+    operatorController.leftBumper().whileTrue(m_ClimbSubsystem.setClimbSpeed(0.2))
+        .onFalse(m_ClimbSubsystem.stopClimber());
+    operatorController.leftTrigger().whileTrue(m_ClimbSubsystem.setClimbSpeed(-0.2))
+        .onFalse(m_ClimbSubsystem.stopClimber());
+
+    operatorController.rightBumper().whileTrue(m_ClimbSubsystem.setClimbSpeed(0.8))
+        .onFalse(m_ClimbSubsystem.stopClimber());
+    operatorController.rightTrigger().whileTrue(m_ClimbSubsystem.setClimbSpeed(-0.8))
+        .onFalse(m_ClimbSubsystem.stopClimber());
 
     // Automatic Eject Shoot
-    operatorController.a().whileTrue(ejectShoot())
+    driverController.a().whileTrue(ejectShoot())
         .onFalse(resetShooter());
 
     // Toggle Slow Speed
@@ -113,7 +109,7 @@ public class RobotContainer {
   // Commands
   private Command intakeGrabNote() {
     return new ParallelDeadlineGroup(new WaitUntilCommand(() -> m_IntakeSubsystem.hasNote()),
-        m_IntakeSubsystem.setIntakeSpeed(0.6))
+        m_IntakeSubsystem.setIntakeSpeed(0.4))
         .andThen(stopIntake())
         .andThen(new InstantCommand(() -> operatorController.getHID().setRumble(RumbleType.kBothRumble, 0.5)))
         .andThen(new WaitCommand(0.5))
@@ -133,16 +129,6 @@ public class RobotContainer {
         .andThen(new InstantCommand(() -> operatorController.getHID().setRumble(RumbleType.kBothRumble, 0)));
   }
 
-  private Command automaticAmpShoot() {
-    return new ParallelDeadlineGroup(checkPossibilityNoVision(),
-        m_ShooterSubsystem.setShooterRPM(1)
-            .alongWith(m_ShooterSubsystem.setOvverideAngle(-5))
-            .alongWith(m_ShooterSubsystem.setShooterAngle())
-            .alongWith(new WaitUntilCommand(
-                () -> m_ShooterSubsystem.shooterAtGoalRPM(5400) && m_ShooterSubsystem.shooterHingeAtGoal())
-                .andThen(m_IntakeSubsystem.setIntakeSpeed(1))));
-  }
-
   private Command ejectShoot() {
     return new ParallelDeadlineGroup(checkPossibilityNoVision(),
         m_ShooterSubsystem.setShooterRPM(0.4).alongWith(m_ShooterSubsystem.setShooterAngle())
@@ -160,13 +146,12 @@ public class RobotContainer {
   }
 
   private Command checkPossibility() {
-    return new WaitUntilCommand(() -> !LimelightHelpers.isPossible() ||
-        !m_IntakeSubsystem.hasNote())
+    return new WaitUntilCommand(() -> !m_IntakeSubsystem.hasNote())
         .andThen(new InstantCommand(() -> driverController.getHID().setRumble(RumbleType.kBothRumble, 0.5)));
   }
 
   private Command checkPossibilityNoVision() {
-    return new WaitUntilCommand(() -> !LimelightHelpers.isPossible() || !m_IntakeSubsystem.hasNote())
+    return new WaitUntilCommand(() -> !m_IntakeSubsystem.hasNote())
         .andThen(new InstantCommand(() -> driverController.getHID().setRumble(RumbleType.kBothRumble, 0.5)));
   }
 
@@ -176,11 +161,15 @@ public class RobotContainer {
   }
 
   private Command enableClimber() {
-    return m_ShooterSubsystem.setOvverideAngle(-29).andThen(new WaitUntilCommand(() -> m_ShooterSubsystem.shooterHingeAtGoal()).andThen(m_ClimbSubsystem.setClimbPosition(true)));
+    return m_ShooterSubsystem.setOvverideAngle(-2)
+        .andThen(new WaitUntilCommand(() -> m_ShooterSubsystem.shooterHingeAtGoal())
+            .andThen(m_ClimbSubsystem.setClimbPosition(true)));
   }
 
   private Command disableClimber() {
-    return m_ShooterSubsystem.setOvverideAngle(-29).andThen(new WaitUntilCommand(() -> m_ShooterSubsystem.shooterHingeAtGoal()).andThen(m_ClimbSubsystem.setClimbPosition(false)));
+    return m_ShooterSubsystem.setOvverideAngle(-2)
+        .andThen(new WaitUntilCommand(() -> m_ShooterSubsystem.shooterHingeAtGoal())
+            .andThen(m_ClimbSubsystem.setClimbPosition(false)));
   }
 
   public Command getAutonomousCommand() {

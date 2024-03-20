@@ -15,8 +15,8 @@ public class RotateToTarget extends Command {
   public RotateToTarget(DriveSubsystem dt) {
     drivetrain = dt;
 
-    pidRotation = new PIDController(0.02, 0, 0);
-    pidRotation.setTolerance(1.25);
+    pidRotation = new PIDController(0.01, 0, 0);
+    pidRotation.setTolerance(1);
 
     addRequirements(dt);
   }
@@ -29,7 +29,7 @@ public class RotateToTarget extends Command {
     }
 
     double rotation = pidRotation.calculate(LimelightHelpers.getTX(""), 0);
-    drivetrain.drive(0, 0, -rotation, false, false);
+    drivetrain.drive(0, 0, rotation, false, false);
 
     if(pidRotation.atSetpoint())
     {

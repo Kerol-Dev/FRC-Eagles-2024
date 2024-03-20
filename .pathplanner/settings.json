@@ -5,11 +5,10 @@
   "pathFolders": [
     "2 - Note - Side",
     "5 - Note - Basic",
-    "6 - Note - Main",
     "Mobility"
   ],
   "autoFolders": [],
-  "defaultMaxVel": 4.5,
+  "defaultMaxVel": 3.1,
   "defaultMaxAccel": 5.0,
   "defaultMaxAngVel": 600.0,
   "defaultMaxAngAccel": 550.0,

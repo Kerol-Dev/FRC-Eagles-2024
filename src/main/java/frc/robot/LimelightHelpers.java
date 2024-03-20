@@ -401,16 +401,19 @@ public class LimelightHelpers {
     }
 
     // Constants defined outside the function
-    public final static double MIN_DISTANCE = 2;
-    public final static double MAX_DISTANCE = 3;
-    final static double MIN_ANGLE = -5;
-    final static double MAX_ANGLE = -11;
+    public final static double MIN_DISTANCE = 1.6;
+    public final static double MAX_DISTANCE = 3.7;
+    final static double MIN_ANGLE = -4;
+    final static double MAX_ANGLE = -14;
 
     // Function to calculate the required shooting angle for a given distance
     public static double calculateShootingAngle() {
         double manualAngle = SmartDashboard.getNumber("Manual Shooter Angle", 0);
         if (manualAngle < 0)
             return manualAngle;
+
+        SmartDashboard.putNumber("Limelight 3D Z", getTargetPose3d_CameraSpace("").getZ());
+        SmartDashboard.putNumber("Limelight tX", getTX(""));
 
         if (!getTV(""))
             return 1;
@@ -425,7 +428,8 @@ public class LimelightHelpers {
     }
 
     public static boolean isPossible() {
-        return true;
+        return getTV("") && LimelightHelpers.getTargetPose3d_CameraSpace("").getZ() >= MIN_DISTANCE
+                && LimelightHelpers.getTargetPose3d_CameraSpace("").getZ() <= MAX_DISTANCE;
     }
 
     public static NetworkTable getLimelightNTTable(String tableName) {

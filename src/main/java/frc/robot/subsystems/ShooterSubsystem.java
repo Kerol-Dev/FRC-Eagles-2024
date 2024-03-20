@@ -17,7 +17,7 @@ import frc.robot.LimelightHelpers;
 public class ShooterSubsystem extends SubsystemBase {
     private final CANSparkMax shooterMotorUpper = new CANSparkMax(12, MotorType.kBrushless);
     private final CANSparkMax shooterMotorLower = new CANSparkMax(11, MotorType.kBrushless);
-    private final CANSparkMax shooterMotorHinge = new CANSparkMax(14, MotorType.kBrushless);
+    public static final CANSparkMax shooterMotorHinge = new CANSparkMax(14, MotorType.kBrushless);
 
     public final DigitalInput shooterHome = new DigitalInput(1);
     private SparkPIDController shooterMotorUpperPID;
@@ -34,14 +34,14 @@ public class ShooterSubsystem extends SubsystemBase {
     private double positionMaxOutput = 0.5;
 
     private int RPMTolerance = 200;
-    private double angleTolerance = 2;
+    private double angleTolerance = 0.35;
 
     public double goalAngle = 0;
     public double ovverideAngle = 0;
 
     public ShooterSubsystem() {
         shooterMotorUpper.restoreFactoryDefaults();
-        shooterMotorUpper.setIdleMode(IdleMode.kCoast);
+        shooterMotorUpper.setIdleMode(IdleMode.kBrake);
         shooterMotorUpper.setInverted(false);
         shooterMotorUpperPID = shooterMotorUpper.getPIDController();
         shooterMotorUpperPID.setFeedbackDevice(shooterMotorUpper.getEncoder());
@@ -51,7 +51,7 @@ public class ShooterSubsystem extends SubsystemBase {
         shooterMotorUpperPID.setD(velocityKd);
 
         shooterMotorLower.restoreFactoryDefaults();
-        shooterMotorLower.setIdleMode(IdleMode.kCoast);
+        shooterMotorLower.setIdleMode(IdleMode.kBrake);
         shooterMotorLower.setInverted(false);
         shooterMotorLowerPID = shooterMotorLower.getPIDController();
         shooterMotorLowerPID.setFeedbackDevice(shooterMotorLower.getEncoder());
@@ -76,7 +76,7 @@ public class ShooterSubsystem extends SubsystemBase {
         shooterMotorHinge.enableSoftLimit(SoftLimitDirection.kForward, true);
         shooterMotorHinge.enableSoftLimit(SoftLimitDirection.kReverse, true);
 
-        shooterMotorHinge.setSoftLimit(SoftLimitDirection.kForward, -2);
+        shooterMotorHinge.setSoftLimit(SoftLimitDirection.kForward, 0);
         shooterMotorHinge.setSoftLimit(SoftLimitDirection.kReverse, -30);
         shooterMotorHingePID.setReference(-3, ControlType.kPosition);
     }

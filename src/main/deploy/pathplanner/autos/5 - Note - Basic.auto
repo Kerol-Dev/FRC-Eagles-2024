@@ -52,6 +52,18 @@
           "data": {
             "name": "ShootNote"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Red - Basic - 4"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ShootNote"
+          }
         }
       ]
     }

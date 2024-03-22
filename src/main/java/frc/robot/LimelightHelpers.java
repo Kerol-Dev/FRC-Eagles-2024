@@ -401,10 +401,10 @@ public class LimelightHelpers {
     }
 
     // Constants defined outside the function
-    public final static double MIN_DISTANCE = 1.6;
-    public final static double MAX_DISTANCE = 3.7;
-    final static double MIN_ANGLE = -4;
-    final static double MAX_ANGLE = -14;
+    public final static double MIN_DISTANCE = 1.8;
+    public final static double MAX_DISTANCE = 3;
+    final static double MIN_ANGLE = -4.5;
+    final static double MAX_ANGLE = -12;
 
     // Function to calculate the required shooting angle for a given distance
     public static double calculateShootingAngle() {

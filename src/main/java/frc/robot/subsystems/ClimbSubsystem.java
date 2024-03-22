@@ -38,7 +38,7 @@ public class ClimbSubsystem extends SubsystemBase {
         climbMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
 
         climbMotor.setSoftLimit(SoftLimitDirection.kForward, 30);
-        climbMotor.setSoftLimit(SoftLimitDirection.kReverse, -55);
+        climbMotor.setSoftLimit(SoftLimitDirection.kReverse, -65);
 
         climbMotorPID.setReference(0, ControlType.kPosition);
     }
@@ -50,7 +50,12 @@ public class ClimbSubsystem extends SubsystemBase {
 
     public Command setClimbPosition(boolean up)
     {
-        return Commands.runOnce(() -> climbMotorPID.setReference(up ? -54 : 29, ControlType.kPosition));
+        return Commands.runOnce(() -> climbMotorPID.setReference(up ? -65 : 29, ControlType.kPosition));
+    }
+
+    public Command goToZeroPosition()
+    {
+        return Commands.runOnce(() -> climbMotorPID.setReference(0, ControlType.kPosition));
     }
 
     public Command resetClimbPosition()

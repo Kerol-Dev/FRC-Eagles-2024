@@ -31,7 +31,6 @@ public class Robot extends LoggedRobot {
     m_robotContainer = new RobotContainer();
     DriveSubsystem.resetToAbsolute();
     SmartDashboard.putNumber("Manual Shooter Angle", 0);
-    LimelightHelpers.setPipelineIndex("", 1);
   }
 
   @Override
@@ -69,7 +68,6 @@ public class Robot extends LoggedRobot {
   public void autonomousInit() {
     DriveSubsystem.resetEncoders();
     ShooterSubsystem.shooterMotorHinge.getEncoder().setPosition(0);
-    LimelightHelpers.setPipelineIndex("", 1);
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     if (m_autonomousCommand != null) {
@@ -84,7 +82,6 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void teleopInit() {
-    LimelightHelpers.setPipelineIndex("", 0);
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }

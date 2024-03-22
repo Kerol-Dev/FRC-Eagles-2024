@@ -8,9 +8,9 @@ public final class Constants {
   public static final class DriveConstants {
 
     public static final double kMaxSpeedMetersPerSecond = 4.8;
-    public static final double kMaxAcceleration = 2;
+    public static final double kMaxAcceleration = 1.9;
     public static final double kMaxAngularSpeed = 2 * Math.PI;
-    public static final double kMaxAngularAcceleration = 4;
+    public static final double kMaxAngularAcceleration = 3.2;
 
     // Chassis configuration
     public static final double kTrackWidth = 0.679;
@@ -74,7 +74,7 @@ public final class Constants {
     public static final double kTurningEncoderPositionPIDMinInput = 0; // radians
     public static final double kTurningEncoderPositionPIDMaxInput = Math.PI *2; // radians
 
-    public static final double kDrivingP = 0.25;		// 0.025
+    public static final double kDrivingP = 0.22;		// 0.025
     public static final double kDrivingI = 0;
     public static final double kDrivingD = 0;
     public static final double kDrivingMinOutput = -1;
@@ -95,6 +95,6 @@ public final class Constants {
 
   public static final class OIConstants {
     public static final int kDriverControllerPort = 0;
-    public static final double kDriveDeadband = 0.15;
+    public static final double kDriveDeadband = 0.1;
   }
 }

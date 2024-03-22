@@ -31,7 +31,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private double positionKp = 0.35;
     private double positionKi = 0;
     private double positionKd = 0;
-    private double positionMaxOutput = 0.5;
+    private double positionMaxOutput = 0.45;
 
     private int RPMTolerance = 200;
     private double angleTolerance = 0.35;

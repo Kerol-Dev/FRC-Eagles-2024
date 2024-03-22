@@ -3,7 +3,7 @@
     "type": "java",
     "name": "frcJava",
     "port": 8349,
-    "target": "10.69.48.2",
+    "target": "roborio-6948-FRC",
     "project": "FRC-Eagles-2024"
   }
 ]

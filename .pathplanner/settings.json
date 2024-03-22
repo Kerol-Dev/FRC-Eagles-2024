@@ -8,8 +8,8 @@
     "Mobility"
   ],
   "autoFolders": [],
-  "defaultMaxVel": 3.1,
-  "defaultMaxAccel": 5.0,
+  "defaultMaxVel": 3.0,
+  "defaultMaxAccel": 3.0,
   "defaultMaxAngVel": 600.0,
   "defaultMaxAngAccel": 550.0,
   "maxModuleSpeed": 4.5

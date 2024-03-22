@@ -86,7 +86,7 @@ public class RobotContainer {
     operatorController.povDown().onFalse(disableClimber());
 
     // Set Angle Manual (Testing)
-    operatorController.start().onTrue(m_ClimbSubsystem.resetClimbPosition());
+    operatorController.start().onTrue(m_ClimbSubsystem.goToZeroPosition());
 
     operatorController.leftBumper().whileTrue(m_ClimbSubsystem.setClimbSpeed(0.2))
         .onFalse(m_ClimbSubsystem.stopClimber());
@@ -109,7 +109,7 @@ public class RobotContainer {
   // Commands
   private Command intakeGrabNote() {
     return new ParallelDeadlineGroup(new WaitUntilCommand(() -> m_IntakeSubsystem.hasNote()),
-        m_IntakeSubsystem.setIntakeSpeed(0.4))
+        m_IntakeSubsystem.setIntakeSpeed(0.36))
         .andThen(stopIntake())
         .andThen(new InstantCommand(() -> operatorController.getHID().setRumble(RumbleType.kBothRumble, 0.5)))
         .andThen(new WaitCommand(0.5))

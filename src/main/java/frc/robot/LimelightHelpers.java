@@ -1,4 +1,4 @@
-//LimelightHelpers v1.2.1 (March 1, 2023)
+//LimelightHelpers v1.5.0 (March 27, 2024)
 
 package frc.robot;
 
@@ -300,6 +300,18 @@ public class LimelightHelpers {
         @JsonProperty("botpose_wpiblue")
         public double[] botpose_wpiblue;
 
+        @JsonProperty("botpose_tagcount")
+        public double botpose_tagcount;
+
+        @JsonProperty("botpose_span")
+        public double botpose_span;
+
+        @JsonProperty("botpose_avgdist")
+        public double botpose_avgdist;
+
+        @JsonProperty("botpose_avgarea")
+        public double botpose_avgarea;
+
         @JsonProperty("t6c_rs")
         public double[] camerapose_robotspace;
 
@@ -360,8 +372,58 @@ public class LimelightHelpers {
         @JsonProperty("Results")
         public Results targetingResults;
 
+        public String error;
+
         public LimelightResults() {
             targetingResults = new Results();
+            error = "";
+        }
+
+    }
+
+    public static class RawFiducial {
+        public int id;
+        public double txnc;
+        public double tync;
+        public double ta;
+        public double distToCamera;
+        public double distToRobot;
+        public double ambiguity;
+
+        public RawFiducial(int id, double txnc, double tync, double ta, double distToCamera, double distToRobot,
+                double ambiguity) {
+            this.id = id;
+            this.txnc = txnc;
+            this.tync = tync;
+            this.ta = ta;
+            this.distToCamera = distToCamera;
+            this.distToRobot = distToRobot;
+            this.ambiguity = ambiguity;
+        }
+    }
+
+    public static class PoseEstimate {
+        public Pose2d pose;
+        public double timestampSeconds;
+        public double latency;
+        public int tagCount;
+        public double tagSpan;
+        public double avgTagDist;
+        public double avgTagArea;
+        public RawFiducial[] rawFiducials;
+
+        public PoseEstimate(Pose2d pose, double timestampSeconds, double latency,
+                int tagCount, double tagSpan, double avgTagDist,
+                double avgTagArea, RawFiducial[] rawFiducials) {
+
+            this.pose = pose;
+            this.timestampSeconds = timestampSeconds;
+            this.latency = latency;
+            this.tagCount = tagCount;
+            this.tagSpan = tagSpan;
+            this.avgTagDist = avgTagDist;
+            this.avgTagArea = avgTagArea;
+            this.rawFiducials = rawFiducials;
         }
     }
 
@@ -381,7 +443,7 @@ public class LimelightHelpers {
 
     private static Pose3d toPose3D(double[] inData) {
         if (inData.length < 6) {
-            System.err.println("Bad LL 3D Pose Data!");
+            // System.err.println("Bad LL 3D Pose Data!");
             return new Pose3d();
         }
         return new Pose3d(
@@ -392,7 +454,7 @@ public class LimelightHelpers {
 
     private static Pose2d toPose2D(double[] inData) {
         if (inData.length < 6) {
-            System.err.println("Bad LL 2D Pose Data!");
+            // System.err.println("Bad LL 2D Pose Data!");
             return new Pose2d();
         }
         Translation2d tran2d = new Translation2d(inData[0], inData[1]);
@@ -400,36 +462,46 @@ public class LimelightHelpers {
         return new Pose2d(tran2d, r2d);
     }
 
-    // Constants defined outside the function
-    public final static double MIN_DISTANCE = 1.8;
-    public final static double MAX_DISTANCE = 3;
-    final static double MIN_ANGLE = -4.5;
-    final static double MAX_ANGLE = -12;
-
-    // Function to calculate the required shooting angle for a given distance
-    public static double calculateShootingAngle() {
-        double manualAngle = SmartDashboard.getNumber("Manual Shooter Angle", 0);
-        if (manualAngle < 0)
-            return manualAngle;
-
-        SmartDashboard.putNumber("Limelight 3D Z", getTargetPose3d_CameraSpace("").getZ());
-        SmartDashboard.putNumber("Limelight tX", getTX(""));
-
-        if (!getTV(""))
-            return 1;
-
-        double targetDistance = LimelightHelpers.getTargetPose3d_CameraSpace("").getZ();
-
-        double distanceRatio = (targetDistance - MIN_DISTANCE) / (MAX_DISTANCE - MIN_DISTANCE);
-
-        double angle = MIN_ANGLE + (MAX_ANGLE - MIN_ANGLE) * distanceRatio;
-
-        return angle;
+    private static double extractBotPoseEntry(double[] inData, int position) {
+        if (inData.length < position + 1) {
+            return 0;
+        }
+        return inData[position];
     }
 
-    public static boolean isPossible() {
-        return getTV("") && LimelightHelpers.getTargetPose3d_CameraSpace("").getZ() >= MIN_DISTANCE
-                && LimelightHelpers.getTargetPose3d_CameraSpace("").getZ() <= MAX_DISTANCE;
+    private static PoseEstimate getBotPoseEstimate(String limelightName, String entryName) {
+        var poseEntry = LimelightHelpers.getLimelightNTTableEntry(limelightName, entryName);
+        var poseArray = poseEntry.getDoubleArray(new double[0]);
+        var pose = toPose2D(poseArray);
+        double latency = extractBotPoseEntry(poseArray, 6);
+        int tagCount = (int) extractBotPoseEntry(poseArray, 7);
+        double tagSpan = extractBotPoseEntry(poseArray, 8);
+        double tagDist = extractBotPoseEntry(poseArray, 9);
+        double tagArea = extractBotPoseEntry(poseArray, 10);
+        // getlastchange() in microseconds, ll latency in milliseconds
+        var timestamp = (poseEntry.getLastChange() / 1000000.0) - (latency / 1000.0);
+
+        RawFiducial[] rawFiducials = new RawFiducial[tagCount];
+        int valsPerFiducial = 7;
+        int expectedTotalVals = 11 + valsPerFiducial * tagCount;
+
+        if (poseArray.length != expectedTotalVals) {
+            // Don't populate fiducials
+        } else {
+            for (int i = 0; i < tagCount; i++) {
+                int baseIndex = 11 + (i * valsPerFiducial);
+                int id = (int) poseArray[baseIndex];
+                double txnc = poseArray[baseIndex + 1];
+                double tync = poseArray[baseIndex + 2];
+                double ta = poseArray[baseIndex + 3];
+                double distToCamera = poseArray[baseIndex + 4];
+                double distToRobot = poseArray[baseIndex + 5];
+                double ambiguity = poseArray[baseIndex + 6];
+                rawFiducials[i] = new RawFiducial(id, txnc, tync, ta, distToCamera, distToRobot, ambiguity);
+            }
+        }
+
+        return new PoseEstimate(pose, timestamp, latency, tagCount, tagSpan, tagDist, tagArea, rawFiducials);
     }
 
     public static NetworkTable getLimelightNTTable(String tableName) {
@@ -473,6 +545,38 @@ public class LimelightHelpers {
     }
     /////
     /////
+
+    // Constants defined outside the function
+    public final static double MIN_DISTANCE = 1.8;
+    public final static double MAX_DISTANCE = 3;
+    final static double MIN_ANGLE = -4.5;
+    final static double MAX_ANGLE = -12;
+
+    // Function to calculate the required shooting angle for a given distance
+    public static double calculateShootingAngle() {
+        double manualAngle = SmartDashboard.getNumber("Manual Shooter Angle", 0);
+        if (manualAngle < 0)
+            return manualAngle;
+
+        SmartDashboard.putNumber("Limelight 3D Z", getTargetPose3d_CameraSpace("").getZ());
+        SmartDashboard.putNumber("Limelight tX", getTX(""));
+
+        if (!getTV(""))
+            return 1;
+
+        double targetDistance = LimelightHelpers.getTargetPose3d_CameraSpace("").getZ();
+
+        double distanceRatio = (targetDistance - MIN_DISTANCE) / (MAX_DISTANCE - MIN_DISTANCE);
+
+        double angle = MIN_ANGLE + (MAX_ANGLE - MIN_ANGLE) * distanceRatio;
+
+        return angle;
+    }
+
+    public static boolean isPossible() {
+        return getTV("") && LimelightHelpers.getTargetPose3d_CameraSpace("").getZ() >= MIN_DISTANCE
+                && LimelightHelpers.getTargetPose3d_CameraSpace("").getZ() <= MAX_DISTANCE;
+    }
 
     public static double getTX(String limelightName) {
         return getLimelightNTDouble(limelightName, "tx");
@@ -544,7 +648,7 @@ public class LimelightHelpers {
     }
 
     public static double[] getBotPose_wpiBlue(String limelightName) {
-        return getLimelightNTDoubleArray(limelightName, "botpose_wpiblue");
+        return getLimelightNTDoubleArray(limelightName, "botpose_orb_wpiblue");
     }
 
     public static double[] getBotPose_TargetSpace(String limelightName) {
@@ -571,8 +675,8 @@ public class LimelightHelpers {
         return getLimelightNTDouble(limelightName, "tid");
     }
 
-    public static double getNeuralClassID(String limelightName) {
-        return getLimelightNTDouble(limelightName, "tclass");
+    public static String getNeuralClassID(String limelightName) {
+        return getLimelightNTString(limelightName, "tclass");
     }
 
     /////
@@ -632,6 +736,30 @@ public class LimelightHelpers {
     }
 
     /**
+     * Gets the Pose2d and timestamp for use with WPILib pose estimator
+     * (addVisionMeasurement) when you are on the BLUE
+     * alliance
+     * 
+     * @param limelightName
+     * @return
+     */
+    public static PoseEstimate getBotPoseEstimate_wpiBlue(String limelightName) {
+        return getBotPoseEstimate(limelightName, "botpose_wpiblue");
+    }
+
+    /**
+     * Gets the Pose2d and timestamp for use with WPILib pose estimator
+     * (addVisionMeasurement) when you are on the BLUE
+     * alliance
+     * 
+     * @param limelightName
+     * @return
+     */
+    public static PoseEstimate getBotPoseEstimate_wpiBlue_MegaTag2(String limelightName) {
+        return getBotPoseEstimate(limelightName, "botpose_orb_wpiblue");
+    }
+
+    /**
      * Gets the Pose2d for easy use with Odometry vision pose estimator
      * (addVisionMeasurement)
      * 
@@ -643,6 +771,30 @@ public class LimelightHelpers {
         double[] result = getBotPose_wpiRed(limelightName);
         return toPose2D(result);
 
+    }
+
+    /**
+     * Gets the Pose2d and timestamp for use with WPILib pose estimator
+     * (addVisionMeasurement) when you are on the RED
+     * alliance
+     * 
+     * @param limelightName
+     * @return
+     */
+    public static PoseEstimate getBotPoseEstimate_wpiRed(String limelightName) {
+        return getBotPoseEstimate(limelightName, "botpose_wpired");
+    }
+
+    /**
+     * Gets the Pose2d and timestamp for use with WPILib pose estimator
+     * (addVisionMeasurement) when you are on the RED
+     * alliance
+     * 
+     * @param limelightName
+     * @return
+     */
+    public static PoseEstimate getBotPoseEstimate_wpiRed_MegaTag2(String limelightName) {
+        return getBotPoseEstimate(limelightName, "botpose_orb_wpired");
     }
 
     /**
@@ -668,6 +820,10 @@ public class LimelightHelpers {
 
     public static void setPipelineIndex(String limelightName, int pipelineIndex) {
         setLimelightNTDouble(limelightName, "pipeline", pipelineIndex);
+    }
+
+    public static void setPriorityTagID(String limelightName, int ID) {
+        setLimelightNTDouble(limelightName, "priorityid", ID);
     }
 
     /**
@@ -722,6 +878,28 @@ public class LimelightHelpers {
         entries[2] = cropYMin;
         entries[3] = cropYMax;
         setLimelightNTDoubleArray(limelightName, "crop", entries);
+    }
+
+    public static void SetRobotOrientation(String limelightName, double yaw, double yawRate,
+            double pitch, double pitchRate,
+            double roll, double rollRate) {
+
+        double[] entries = new double[6];
+        entries[0] = yaw;
+        entries[1] = yawRate;
+        entries[2] = pitch;
+        entries[3] = pitchRate;
+        entries[4] = roll;
+        entries[5] = rollRate;
+        setLimelightNTDoubleArray(limelightName, "robot_orientation_set", entries);
+    }
+
+    public static void SetFiducialIDFiltersOverride(String limelightName, int[] validIDs) {
+        double[] validIDsDouble = new double[validIDs.length];
+        for (int i = 0; i < validIDs.length; i++) {
+            validIDsDouble[i] = validIDs[i];
+        }
+        setLimelightNTDoubleArray(limelightName, "fiducial_id_filters_set", validIDsDouble);
     }
 
     public static void setCameraPose_RobotSpace(String limelightName, double forward, double side, double up,
@@ -794,7 +972,7 @@ public class LimelightHelpers {
         try {
             results = mapper.readValue(getJSONDump(limelightName), LimelightResults.class);
         } catch (JsonProcessingException e) {
-            System.err.println("lljson error: " + e.getMessage());
+            results.error = "lljson error: " + e.getMessage();
         }
 
         long end = System.nanoTime();

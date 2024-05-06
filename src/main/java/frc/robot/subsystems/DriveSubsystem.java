@@ -63,7 +63,7 @@ public class DriveSubsystem extends SubsystemBase {
       DriveConstants.kRearRightChassisAngularOffset);
 
   public final Field2d m_field = new Field2d();
-  private static AHRS m_gyro = new AHRS(SPI.Port.kMXP);
+  public static AHRS m_gyro = new AHRS(SPI.Port.kMXP);
 
   private SlewRateLimiter m_magXLimiter = new SlewRateLimiter(DriveConstants.kMaxAcceleration);
   private SlewRateLimiter m_magYLimiter = new SlewRateLimiter(DriveConstants.kMaxAcceleration);

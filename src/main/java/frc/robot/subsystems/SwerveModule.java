@@ -4,10 +4,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
-import org.littletonrobotics.junction.AutoLogOutput;
-
 import com.ctre.phoenix.sensors.CANCoder;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkLowLevel.MotorType;
@@ -18,22 +16,19 @@ import frc.robot.Constants.ModuleConstants;
 
 @SuppressWarnings("removal")
 public class SwerveModule {
-  public final CANSparkMax m_drivingSparkMax;
+  public final TalonFX m_drivingMotor;
   public final CANSparkMax m_turningSparkMax;
 
-  public final RelativeEncoder m_drivingEncoder;
   public final RelativeEncoder m_turningEncoder;
 
   public final CANCoder m_canEncoder;
 
-  public final SparkPIDController m_drivingPIDController;
   public final SparkPIDController m_turningPIDController;
 
   private double m_chassisAngularOffset = 0;
   public double encoderOffset;
   private Rotation2d encoderOffset2d;
 
-  @AutoLogOutput
   private SwerveModuleState m_desiredState = new SwerveModuleState(0.0, new Rotation2d());
 
   @SuppressWarnings("deprecation")
@@ -44,7 +39,7 @@ public class SwerveModule {
     encoderOffset2d = Rotation2d.fromDegrees(encoderOffset);
     this.encoderOffset = encoderOffset;
 
-    m_drivingSparkMax = new CANSparkMax(drivingCANId, MotorType.kBrushless);
+    m_drivingMotor = new TalonFX(drivingCANId);
     m_turningSparkMax = new CANSparkMax(turningCANId, MotorType.kBrushless);
 
     m_canEncoder = new CANCoder(cancoderID);
@@ -53,26 +48,14 @@ public class SwerveModule {
 
     // Factory reset, so we get the SPARKS MAX to a known state before configuring
     // them. This is useful in case a SPARK MAX is swapped out.
-    m_drivingSparkMax.restoreFactoryDefaults();
     m_turningSparkMax.restoreFactoryDefaults();
 
-    m_drivingSparkMax.setInverted(drivingMotorReversed);
     m_turningSparkMax.setInverted(turningMotorReversed);
 
     // Setup encoders and PID controllers for the driving and turning SPARKS MAX.
-    m_drivingEncoder = m_drivingSparkMax.getEncoder();
     m_turningEncoder = m_turningSparkMax.getEncoder();
-    m_drivingPIDController = m_drivingSparkMax.getPIDController();
     m_turningPIDController = m_turningSparkMax.getPIDController();
-    m_drivingPIDController.setFeedbackDevice(m_drivingEncoder);
     m_turningPIDController.setFeedbackDevice(m_turningEncoder);
-
-    // Apply position and velocity conversion factors for the driving encoder. The
-    // native units for position and velocity are rotations and RPM, respectively,
-    // but we want meters and meters per second to use with WPILib's swerve APIs.
-
-    m_drivingEncoder.setPositionConversionFactor(ModuleConstants.kDrivingEncoderPositionFactor);
-    m_drivingEncoder.setVelocityConversionFactor(ModuleConstants.kDrivingEncoderVelocityFactor);
 
     // Apply position and velocity conversion factors for the turning encoder. We
     // want these in radians and radians per second to use with WPILib's swerve
@@ -92,17 +75,6 @@ public class SwerveModule {
     m_turningPIDController.setPositionPIDWrappingMinInput(ModuleConstants.kTurningEncoderPositionPIDMinInput);
     m_turningPIDController.setPositionPIDWrappingMaxInput(ModuleConstants.kTurningEncoderPositionPIDMaxInput);
 
-    // m_canEncoder.getConfigurator().apply(new
-    // MagnetSensorConfigs().withAbsoluteSensorRange(AbsoluteSensorRangeValue.Unsigned_0To1));
-    // Set the PID gains for the driving motor. Note these are example gains, and
-    // you
-    // may need to tune them for your own robot!
-    m_drivingPIDController.setP(ModuleConstants.kDrivingP);
-    m_drivingPIDController.setI(ModuleConstants.kDrivingI);
-    m_drivingPIDController.setD(ModuleConstants.kDrivingD);
-    m_drivingPIDController.setOutputRange(ModuleConstants.kDrivingMinOutput,
-        ModuleConstants.kDrivingMaxOutput);
-
     // Set the PID gains for the turning motor. Note these are example gains, and
     // you
     // may need to tune them for your own robot!
@@ -112,14 +84,11 @@ public class SwerveModule {
     m_turningPIDController.setOutputRange(ModuleConstants.kTurningMinOutput,
         ModuleConstants.kTurningMaxOutput);
 
-    m_drivingSparkMax.setIdleMode(ModuleConstants.kDrivingMotorIdleMode);
     m_turningSparkMax.setIdleMode(ModuleConstants.kTurningMotorIdleMode);
-    m_drivingSparkMax.setSmartCurrentLimit(ModuleConstants.kDrivingMotorCurrentLimit);
     m_turningSparkMax.setSmartCurrentLimit(ModuleConstants.kTurningMotorCurrentLimit);
 
     // Save the SPARK MAX configurations. If a SPARK MAX browns out during
     // operation, it will maintain the above configurations.
-    m_drivingSparkMax.burnFlash();
     m_turningSparkMax.burnFlash();
 
     // m_desiredState.angle = new Rotation2d(m_turningEncoder.getPosition());
@@ -130,16 +99,21 @@ public class SwerveModule {
   }
 
   public SwerveModuleState getState() {
-    return new SwerveModuleState(m_drivingEncoder.getVelocity(), getAngle());
+    return new SwerveModuleState(m_drivingMotor.getVelocity().getValueAsDouble() * 60, getAngle());
   }
 
   public SwerveModulePosition getPosition() {
-    return new SwerveModulePosition(m_drivingEncoder.getPosition(), getAngle());
+    return new SwerveModulePosition(getMotorPosition(), getAngle());
   }
 
   private Rotation2d getAngle() {
     return Rotation2d
         .fromRadians(m_turningEncoder.getPosition() - m_chassisAngularOffset);
+  }
+
+  private double getMotorPosition()
+  {
+    return m_drivingMotor.getPosition().getValueAsDouble() * ModuleConstants.kDrivingEncoderPositionFactor;
   }
 
   @SuppressWarnings("deprecation")
@@ -148,7 +122,7 @@ public class SwerveModule {
         getCanCoder().getDegrees());
     SmartDashboard.putNumber("Turning Angle" + m_canEncoder.getDeviceID(),
         Math.toDegrees((Math.abs(m_turningEncoder.getPosition()) % (2.0 * Math.PI))));
-    SmartDashboard.putNumber("Driving Distance" + m_canEncoder.getDeviceID(), m_drivingEncoder.getPosition());
+    SmartDashboard.putNumber("Driving Distance" + m_canEncoder.getDeviceID(), getMotorPosition());
   }
 
   public void setDesiredState(SwerveModuleState desiredState) {
@@ -163,9 +137,9 @@ public class SwerveModule {
         new Rotation2d(m_turningEncoder.getPosition()));
 
     // Command driving and turning SPARKS MAX towards their respective setpoints.
-    m_drivingSparkMax.set(optimizedDesiredState.speedMetersPerSecond / DriveConstants.kMaxSpeedMetersPerSecond);
+    m_drivingMotor.set(optimizedDesiredState.speedMetersPerSecond / DriveConstants.kMaxSpeedMetersPerSecond);
     if (Math.abs(optimizedDesiredState.speedMetersPerSecond) < 0.006)
-      m_drivingSparkMax.stopMotor();
+      m_drivingMotor.stopMotor();
     m_turningPIDController.setReference(optimizedDesiredState.angle.getRadians(), CANSparkMax.ControlType.kPosition);
 
     m_desiredState = desiredState;
@@ -177,7 +151,7 @@ public class SwerveModule {
 
   /** Zeroes all the SwerveModule encoders. */
   public void resetEncoders() {
-    m_drivingEncoder.setPosition(0);
+    m_drivingMotor.setPosition(0);
   }
 
   @SuppressWarnings("deprecation")
@@ -193,7 +167,7 @@ public class SwerveModule {
   }
 
   public void stop() {
-    m_drivingSparkMax.set(0);
+    m_drivingMotor.set(0);
     m_turningSparkMax.set(0);
   }
 

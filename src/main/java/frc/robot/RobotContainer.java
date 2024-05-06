@@ -11,6 +11,7 @@ import frc.robot.Commands.RotateToTarget;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -30,6 +31,7 @@ public class RobotContainer {
   public final DriveSubsystem m_robotDrive = new DriveSubsystem();
   public final ClimbSubsystem m_ClimbSubsystem = new ClimbSubsystem();
   public final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem();
+  public final FeederSubsystem m_FeederSubsystem = new FeederSubsystem();
   public final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem();
 
   public static SendableChooser<Command> autoChooser = new SendableChooser<Command>();
@@ -109,10 +111,10 @@ public class RobotContainer {
   // Commands
   private Command intakeGrabNote() {
     return new ParallelDeadlineGroup(new WaitUntilCommand(() -> m_IntakeSubsystem.hasNote()),
-        m_IntakeSubsystem.setIntakeSpeed(0.36))
-        .andThen(stopIntake())
+        m_IntakeSubsystem.setIntakeSpeed(1).alongWith(m_FeederSubsystem.setFeederSpeed(0.4)))
+        .andThen(stopIntake().alongWith(m_FeederSubsystem.stopFeeder()))
         .andThen(new InstantCommand(() -> operatorController.getHID().setRumble(RumbleType.kBothRumble, 0.5)))
-        .andThen(new WaitCommand(0.5))
+        .andThen(new WaitCommand(0.3))
         .andThen(resetRumble());
   }
 
@@ -131,18 +133,18 @@ public class RobotContainer {
 
   private Command ejectShoot() {
     return new ParallelDeadlineGroup(checkPossibilityNoVision(),
-        m_ShooterSubsystem.setShooterRPM(0.4).alongWith(m_ShooterSubsystem.setShooterAngle())
+        m_ShooterSubsystem.setShooterRPM(2000).alongWith(m_ShooterSubsystem.setShooterAngle())
             .alongWith(new WaitUntilCommand(
                 () -> m_ShooterSubsystem.shooterAtGoalRPM(2000) && m_ShooterSubsystem.shooterHingeAtGoal())
-                .andThen(m_IntakeSubsystem.setIntakeSpeed(1))));
+                .andThen(m_FeederSubsystem.setFeederSpeed(1))));
   }
 
   private Command automaticShootNote() {
     return new ParallelDeadlineGroup(checkPossibility(), new RotateToTarget(m_robotDrive),
-        m_ShooterSubsystem.setShooterRPM(1).alongWith(m_ShooterSubsystem.setShooterAngle())
+        m_ShooterSubsystem.setShooterRPM(5500).alongWith(m_ShooterSubsystem.setShooterAngle())
             .alongWith(new WaitUntilCommand(
-                () -> m_ShooterSubsystem.shooterAtGoalRPM(5400) && m_ShooterSubsystem.shooterHingeAtGoal())
-                .andThen(m_IntakeSubsystem.setIntakeSpeed(1))));
+                () -> m_ShooterSubsystem.shooterAtGoalRPM(5500) && m_ShooterSubsystem.shooterHingeAtGoal())
+                .andThen(m_FeederSubsystem.setFeederSpeed(1))));
   }
 
   private Command checkPossibility() {
@@ -161,15 +163,11 @@ public class RobotContainer {
   }
 
   private Command enableClimber() {
-    return m_ShooterSubsystem.setOvverideAngle(-2)
-        .andThen(new WaitUntilCommand(() -> m_ShooterSubsystem.shooterHingeAtGoal())
-            .andThen(m_ClimbSubsystem.setClimbPosition(true)));
+    return m_ClimbSubsystem.setClimbPosition(true);
   }
 
   private Command disableClimber() {
-    return m_ShooterSubsystem.setOvverideAngle(-2)
-        .andThen(new WaitUntilCommand(() -> m_ShooterSubsystem.shooterHingeAtGoal())
-            .andThen(m_ClimbSubsystem.setClimbPosition(false)));
+    return m_ClimbSubsystem.setClimbPosition(false);
   }
 
   public Command getAutonomousCommand() {

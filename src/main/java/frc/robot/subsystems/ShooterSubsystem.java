@@ -33,7 +33,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private double positionKd = 0;
     private double positionMaxOutput = 0.45;
 
-    private int RPMTolerance = 200;
+    private int RPMTolerance = 100;
     private double angleTolerance = 0.35;
 
     public double goalAngle = 0;
@@ -113,8 +113,8 @@ public class ShooterSubsystem extends SubsystemBase {
             return;
         }
 
-        shooterMotorUpper.set(goalRPM);
-        shooterMotorLower.set(goalRPM);
+        shooterMotorUpperPID.setReference(goalRPM, ControlType.kVelocity);
+        shooterMotorLowerPID.setReference(goalRPM, ControlType.kVelocity);
     }
 
     public Command setShooterAngle() {

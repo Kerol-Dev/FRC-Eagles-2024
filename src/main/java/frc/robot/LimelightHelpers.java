@@ -1,4 +1,4 @@
-//LimelightHelpers v1.5.0 (March 27, 2024)
+// LimelightHelpers v1.5.0 (27 Mart 2024)
 
 package frc.robot;
 
@@ -32,19 +32,19 @@ public class LimelightHelpers {
     public static class LimelightTarget_Retro {
 
         @JsonProperty("t6c_ts")
-        private double[] cameraPose_TargetSpace;
+        private double[] cameraPose_TargetSpace; // Kamera pozisyonu (hedef alanı)
 
         @JsonProperty("t6r_fs")
-        private double[] robotPose_FieldSpace;
+        private double[] robotPose_FieldSpace; // Robot pozisyonu (saha alanı)
 
         @JsonProperty("t6r_ts")
-        private double[] robotPose_TargetSpace;
+        private double[] robotPose_TargetSpace; // Robot pozisyonu (hedef alanı)
 
         @JsonProperty("t6t_cs")
-        private double[] targetPose_CameraSpace;
+        private double[] targetPose_CameraSpace; // Hedef pozisyonu (kamera alanı)
 
         @JsonProperty("t6t_rs")
-        private double[] targetPose_RobotSpace;
+        private double[] targetPose_RobotSpace; // Hedef pozisyonu (robot alanı)
 
         public Pose3d getCameraPose_TargetSpace() {
             return toPose3D(cameraPose_TargetSpace);
@@ -87,22 +87,22 @@ public class LimelightHelpers {
         }
 
         @JsonProperty("ta")
-        public double ta;
+        public double ta; // Hedef alanı
 
         @JsonProperty("tx")
-        public double tx;
+        public double tx; // Hedef x pozisyonu
 
         @JsonProperty("txp")
-        public double tx_pixels;
+        public double tx_pixels; // Hedef x pozisyonu (piksel)
 
         @JsonProperty("ty")
-        public double ty;
+        public double ty; // Hedef y pozisyonu
 
         @JsonProperty("typ")
-        public double ty_pixels;
+        public double ty_pixels; // Hedef y pozisyonu (piksel)
 
         @JsonProperty("ts")
-        public double ts;
+        public double ts; // Hedef eğimi
 
         public LimelightTarget_Retro() {
             cameraPose_TargetSpace = new double[6];
@@ -111,31 +111,30 @@ public class LimelightHelpers {
             targetPose_CameraSpace = new double[6];
             targetPose_RobotSpace = new double[6];
         }
-
     }
 
     public static class LimelightTarget_Fiducial {
 
         @JsonProperty("fID")
-        public double fiducialID;
+        public double fiducialID; // Fiducial kimliği
 
         @JsonProperty("fam")
-        public String fiducialFamily;
+        public String fiducialFamily; // Fiducial ailesi
 
         @JsonProperty("t6c_ts")
-        private double[] cameraPose_TargetSpace;
+        private double[] cameraPose_TargetSpace; // Kamera pozisyonu (hedef alanı)
 
         @JsonProperty("t6r_fs")
-        private double[] robotPose_FieldSpace;
+        private double[] robotPose_FieldSpace; // Robot pozisyonu (saha alanı)
 
         @JsonProperty("t6r_ts")
-        private double[] robotPose_TargetSpace;
+        private double[] robotPose_TargetSpace; // Robot pozisyonu (hedef alanı)
 
         @JsonProperty("t6t_cs")
-        private double[] targetPose_CameraSpace;
+        private double[] targetPose_CameraSpace; // Hedef pozisyonu (kamera alanı)
 
         @JsonProperty("t6t_rs")
-        private double[] targetPose_RobotSpace;
+        private double[] targetPose_RobotSpace; // Hedef pozisyonu (robot alanı)
 
         public Pose3d getCameraPose_TargetSpace() {
             return toPose3D(cameraPose_TargetSpace);
@@ -178,22 +177,22 @@ public class LimelightHelpers {
         }
 
         @JsonProperty("ta")
-        public double ta;
+        public double ta; // Hedef alanı
 
         @JsonProperty("tx")
-        public double tx;
+        public double tx; // Hedef x pozisyonu
 
         @JsonProperty("txp")
-        public double tx_pixels;
+        public double tx_pixels; // Hedef x pozisyonu (piksel)
 
         @JsonProperty("ty")
-        public double ty;
+        public double ty; // Hedef y pozisyonu
 
         @JsonProperty("typ")
-        public double ty_pixels;
+        public double ty_pixels; // Hedef y pozisyonu (piksel)
 
         @JsonProperty("ts")
-        public double ts;
+        public double ts; // Hedef eğimi
 
         public LimelightTarget_Fiducial() {
             cameraPose_TargetSpace = new double[6];
@@ -205,34 +204,34 @@ public class LimelightHelpers {
     }
 
     public static class LimelightTarget_Barcode {
-
+        // Barcode hedefi (boş)
     }
 
     public static class LimelightTarget_Classifier {
 
         @JsonProperty("class")
-        public String className;
+        public String className; // Sınıf adı
 
         @JsonProperty("classID")
-        public double classID;
+        public double classID; // Sınıf kimliği
 
         @JsonProperty("conf")
-        public double confidence;
+        public double confidence; // Güven
 
         @JsonProperty("zone")
-        public double zone;
+        public double zone; // Bölge
 
         @JsonProperty("tx")
-        public double tx;
+        public double tx; // Hedef x pozisyonu
 
         @JsonProperty("txp")
-        public double tx_pixels;
+        public double tx_pixels; // Hedef x pozisyonu (piksel)
 
         @JsonProperty("ty")
-        public double ty;
+        public double ty; // Hedef y pozisyonu
 
         @JsonProperty("typ")
-        public double ty_pixels;
+        public double ty_pixels; // Hedef y pozisyonu (piksel)
 
         public LimelightTarget_Classifier() {
         }
@@ -241,28 +240,28 @@ public class LimelightHelpers {
     public static class LimelightTarget_Detector {
 
         @JsonProperty("class")
-        public String className;
+        public String className; // Sınıf adı
 
         @JsonProperty("classID")
-        public double classID;
+        public double classID; // Sınıf kimliği
 
         @JsonProperty("conf")
-        public double confidence;
+        public double confidence; // Güven
 
         @JsonProperty("ta")
-        public double ta;
+        public double ta; // Hedef alanı
 
         @JsonProperty("tx")
-        public double tx;
+        public double tx; // Hedef x pozisyonu
 
         @JsonProperty("txp")
-        public double tx_pixels;
+        public double tx_pixels; // Hedef x pozisyonu (piksel)
 
         @JsonProperty("ty")
-        public double ty;
+        public double ty; // Hedef y pozisyonu
 
         @JsonProperty("typ")
-        public double ty_pixels;
+        public double ty_pixels; // Hedef y pozisyonu (piksel)
 
         public LimelightTarget_Detector() {
         }
@@ -271,49 +270,49 @@ public class LimelightHelpers {
     public static class Results {
 
         @JsonProperty("pID")
-        public double pipelineID;
+        public double pipelineID; // Pipeline kimliği
 
         @JsonProperty("tl")
-        public double latency_pipeline;
+        public double latency_pipeline; // Pipeline gecikmesi
 
         @JsonProperty("cl")
-        public double latency_capture;
+        public double latency_capture; // Yakalama gecikmesi
 
-        public double latency_jsonParse;
+        public double latency_jsonParse; // JSON ayrıştırma gecikmesi
 
         @JsonProperty("ts")
-        public double timestamp_LIMELIGHT_publish;
+        public double timestamp_LIMELIGHT_publish; // Limelight yayın zaman damgası
 
         @JsonProperty("ts_rio")
-        public double timestamp_RIOFPGA_capture;
+        public double timestamp_RIOFPGA_capture; // RIO FPGA yakalama zaman damgası
 
         @JsonProperty("v")
         @JsonFormat(shape = Shape.NUMBER)
-        public boolean valid;
+        public boolean valid; // Geçerlilik
 
         @JsonProperty("botpose")
-        public double[] botpose;
+        public double[] botpose; // Robot pozisyonu
 
         @JsonProperty("botpose_wpired")
-        public double[] botpose_wpired;
+        public double[] botpose_wpired; // WPI kırmızı robot pozisyonu
 
         @JsonProperty("botpose_wpiblue")
-        public double[] botpose_wpiblue;
+        public double[] botpose_wpiblue; // WPI mavi robot pozisyonu
 
         @JsonProperty("botpose_tagcount")
-        public double botpose_tagcount;
+        public double botpose_tagcount; // Robot pozisyonu etiket sayısı
 
         @JsonProperty("botpose_span")
-        public double botpose_span;
+        public double botpose_span; // Robot pozisyonu aralığı
 
         @JsonProperty("botpose_avgdist")
-        public double botpose_avgdist;
+        public double botpose_avgdist; // Robot pozisyonu ortalama mesafesi
 
         @JsonProperty("botpose_avgarea")
-        public double botpose_avgarea;
+        public double botpose_avgarea; // Robot pozisyonu ortalama alanı
 
         @JsonProperty("t6c_rs")
-        public double[] camerapose_robotspace;
+        public double[] camerapose_robotspace; // Kamera pozisyonu (robot alanı)
 
         public Pose3d getBotPose3d() {
             return toPose3D(botpose);
@@ -340,19 +339,19 @@ public class LimelightHelpers {
         }
 
         @JsonProperty("Retro")
-        public LimelightTarget_Retro[] targets_Retro;
+        public LimelightTarget_Retro[] targets_Retro; // Retro hedefleri
 
         @JsonProperty("Fiducial")
-        public LimelightTarget_Fiducial[] targets_Fiducials;
+        public LimelightTarget_Fiducial[] targets_Fiducials; // Fiducial hedefleri
 
         @JsonProperty("Classifier")
-        public LimelightTarget_Classifier[] targets_Classifier;
+        public LimelightTarget_Classifier[] targets_Classifier; // Sınıflandırıcı hedefleri
 
         @JsonProperty("Detector")
-        public LimelightTarget_Detector[] targets_Detector;
+        public LimelightTarget_Detector[] targets_Detector; // Dedektör hedefleri
 
         @JsonProperty("Barcode")
-        public LimelightTarget_Barcode[] targets_Barcode;
+        public LimelightTarget_Barcode[] targets_Barcode; // Barcode hedefleri
 
         public Results() {
             botpose = new double[6];
@@ -364,31 +363,29 @@ public class LimelightHelpers {
             targets_Classifier = new LimelightTarget_Classifier[0];
             targets_Detector = new LimelightTarget_Detector[0];
             targets_Barcode = new LimelightTarget_Barcode[0];
-
         }
     }
 
     public static class LimelightResults {
         @JsonProperty("Results")
-        public Results targetingResults;
+        public Results targetingResults; // Hedefleme sonuçları
 
-        public String error;
+        public String error; // Hata
 
         public LimelightResults() {
             targetingResults = new Results();
             error = "";
         }
-
     }
 
     public static class RawFiducial {
-        public int id;
-        public double txnc;
-        public double tync;
-        public double ta;
-        public double distToCamera;
-        public double distToRobot;
-        public double ambiguity;
+        public int id; // Fiducial kimliği
+        public double txnc; // x pozisyonu (normalleştirilmiş)
+        public double tync; // y pozisyonu (normalleştirilmiş)
+        public double ta; // Hedef alanı
+        public double distToCamera; // Kameraya uzaklık
+        public double distToRobot; // Robota uzaklık
+        public double ambiguity; // Belirsizlik
 
         public RawFiducial(int id, double txnc, double tync, double ta, double distToCamera, double distToRobot,
                 double ambiguity) {
@@ -403,14 +400,14 @@ public class LimelightHelpers {
     }
 
     public static class PoseEstimate {
-        public Pose2d pose;
-        public double timestampSeconds;
-        public double latency;
-        public int tagCount;
-        public double tagSpan;
-        public double avgTagDist;
-        public double avgTagArea;
-        public RawFiducial[] rawFiducials;
+        public Pose2d pose; // Pozisyon
+        public double timestampSeconds; // Zaman damgası (saniye)
+        public double latency; // Gecikme
+        public int tagCount; // Etiket sayısı
+        public double tagSpan; // Etiket aralığı
+        public double avgTagDist; // Ortalama etiket mesafesi
+        public double avgTagArea; // Ortalama etiket alanı
+        public RawFiducial[] rawFiducials; // Ham fiducial verileri
 
         public PoseEstimate(Pose2d pose, double timestampSeconds, double latency,
                 int tagCount, double tagSpan, double avgTagDist,
@@ -427,10 +424,10 @@ public class LimelightHelpers {
         }
     }
 
-    private static ObjectMapper mapper;
+    private static ObjectMapper mapper; // JSON ayrıştırıcı
 
     /**
-     * Print JSON Parse time to the console in milliseconds
+     * JSON ayrıştırma süresini milisaniye cinsinden konsola yazdırır
      */
     static boolean profileJSON = false;
 
@@ -443,7 +440,7 @@ public class LimelightHelpers {
 
     private static Pose3d toPose3D(double[] inData) {
         if (inData.length < 6) {
-            // System.err.println("Bad LL 3D Pose Data!");
+            // System.err.println("Kötü LL 3D Pozisyon Verisi!");
             return new Pose3d();
         }
         return new Pose3d(
@@ -454,7 +451,7 @@ public class LimelightHelpers {
 
     private static Pose2d toPose2D(double[] inData) {
         if (inData.length < 6) {
-            // System.err.println("Bad LL 2D Pose Data!");
+            // System.err.println("Kötü LL 2D Pozisyon Verisi!");
             return new Pose2d();
         }
         Translation2d tran2d = new Translation2d(inData[0], inData[1]);
@@ -478,7 +475,7 @@ public class LimelightHelpers {
         double tagSpan = extractBotPoseEntry(poseArray, 8);
         double tagDist = extractBotPoseEntry(poseArray, 9);
         double tagArea = extractBotPoseEntry(poseArray, 10);
-        // getlastchange() in microseconds, ll latency in milliseconds
+        // getlastchange() mikro saniye cinsinden, ll gecikme milisaniye cinsinden
         var timestamp = (poseEntry.getLastChange() / 1000000.0) - (latency / 1000.0);
 
         RawFiducial[] rawFiducials = new RawFiducial[tagCount];
@@ -486,7 +483,7 @@ public class LimelightHelpers {
         int expectedTotalVals = 11 + valsPerFiducial * tagCount;
 
         if (poseArray.length != expectedTotalVals) {
-            // Don't populate fiducials
+            // Fiducials doldurma
         } else {
             for (int i = 0; i < tagCount; i++) {
                 int baseIndex = 11 + (i * valsPerFiducial);
@@ -539,22 +536,20 @@ public class LimelightHelpers {
             url = new URL(urlString);
             return url;
         } catch (MalformedURLException e) {
-            System.err.println("bad LL URL");
+            System.err.println("Kötü LL URL");
         }
         return null;
     }
-    /////
-    /////
 
-    // Constants defined outside the function
-    public final static double MIN_DISTANCE = 1.8;
-    public final static double MAX_DISTANCE = 3;
-    final static double MIN_ANGLE = -4.5;
-    final static double MAX_ANGLE = -12;
+    // Sabitler fonksiyon dışında tanımlanır
+    public final static double MIN_DISTANCE = 1.75;
+    public final static double MAX_DISTANCE = 4;
+    final static double MIN_ANGLE = -52;
+    final static double MAX_ANGLE = -25;
 
-    // Function to calculate the required shooting angle for a given distance
+    // Verilen mesafe için gereken atış açısını hesaplayan fonksiyon
     public static double calculateShootingAngle() {
-        double manualAngle = SmartDashboard.getNumber("Manual Shooter Angle", 0);
+        double manualAngle = SmartDashboard.getNumber("Manual Shooter Angles", 0);
         if (manualAngle < 0)
             return manualAngle;
 
@@ -562,7 +557,7 @@ public class LimelightHelpers {
         SmartDashboard.putNumber("Limelight tX", getTX(""));
 
         if (!getTV(""))
-            return 1;
+            return -25;
 
         double targetDistance = LimelightHelpers.getTargetPose3d_CameraSpace("").getZ();
 
@@ -607,7 +602,7 @@ public class LimelightHelpers {
     }
 
     /**
-     * Switch to getBotPose
+     * getBotPose fonksiyonuna geçiş yapar
      * 
      * @param limelightName
      * @return
@@ -618,7 +613,7 @@ public class LimelightHelpers {
     }
 
     /**
-     * Switch to getBotPose_wpiRed
+     * getBotPose_wpiRed fonksiyonuna geçiş yapar
      * 
      * @param limelightName
      * @return
@@ -629,7 +624,7 @@ public class LimelightHelpers {
     }
 
     /**
-     * Switch to getBotPose_wpiBlue
+     * getBotPose_wpiBlue fonksiyonuna geçiş yapar
      * 
      * @param limelightName
      * @return
@@ -648,7 +643,7 @@ public class LimelightHelpers {
     }
 
     public static double[] getBotPose_wpiBlue(String limelightName) {
-        return getLimelightNTDoubleArray(limelightName, "botpose_orb_wpiblue");
+        return getLimelightNTDoubleArray(limelightName, "botpose_wpiblue");
     }
 
     public static double[] getBotPose_TargetSpace(String limelightName) {
@@ -723,22 +718,18 @@ public class LimelightHelpers {
     }
 
     /**
-     * Gets the Pose2d for easy use with Odometry vision pose estimator
-     * (addVisionMeasurement)
+     * Odometry vision pose estimator (addVisionMeasurement) ile kolay kullanım için Pose2d döndürür
      * 
      * @param limelightName
      * @return
      */
     public static Pose2d getBotPose2d_wpiBlue(String limelightName) {
-
         double[] result = getBotPose_wpiBlue(limelightName);
         return toPose2D(result);
     }
 
     /**
-     * Gets the Pose2d and timestamp for use with WPILib pose estimator
-     * (addVisionMeasurement) when you are on the BLUE
-     * alliance
+     * WPILib pose estimator (addVisionMeasurement) ile kullanım için Pose2d ve zaman damgası döndürür (mavi takımdayken)
      * 
      * @param limelightName
      * @return
@@ -748,9 +739,7 @@ public class LimelightHelpers {
     }
 
     /**
-     * Gets the Pose2d and timestamp for use with WPILib pose estimator
-     * (addVisionMeasurement) when you are on the BLUE
-     * alliance
+     * WPILib pose estimator (addVisionMeasurement) ile kullanım için Pose2d ve zaman damgası döndürür (mavi takımdayken)
      * 
      * @param limelightName
      * @return
@@ -760,23 +749,18 @@ public class LimelightHelpers {
     }
 
     /**
-     * Gets the Pose2d for easy use with Odometry vision pose estimator
-     * (addVisionMeasurement)
+     * Odometry vision pose estimator (addVisionMeasurement) ile kolay kullanım için Pose2d döndürür
      * 
      * @param limelightName
      * @return
      */
     public static Pose2d getBotPose2d_wpiRed(String limelightName) {
-
         double[] result = getBotPose_wpiRed(limelightName);
         return toPose2D(result);
-
     }
 
     /**
-     * Gets the Pose2d and timestamp for use with WPILib pose estimator
-     * (addVisionMeasurement) when you are on the RED
-     * alliance
+     * WPILib pose estimator (addVisionMeasurement) ile kullanım için Pose2d ve zaman damgası döndürür (kırmızı takımdayken)
      * 
      * @param limelightName
      * @return
@@ -786,9 +770,7 @@ public class LimelightHelpers {
     }
 
     /**
-     * Gets the Pose2d and timestamp for use with WPILib pose estimator
-     * (addVisionMeasurement) when you are on the RED
-     * alliance
+     * WPILib pose estimator (addVisionMeasurement) ile kullanım için Pose2d ve zaman damgası döndürür (kırmızı takımdayken)
      * 
      * @param limelightName
      * @return
@@ -798,25 +780,19 @@ public class LimelightHelpers {
     }
 
     /**
-     * Gets the Pose2d for easy use with Odometry vision pose estimator
-     * (addVisionMeasurement)
+     * Odometry vision pose estimator (addVisionMeasurement) ile kolay kullanım için Pose2d döndürür
      * 
      * @param limelightName
      * @return
      */
     public static Pose2d getBotPose2d(String limelightName) {
-
         double[] result = getBotPose(limelightName);
         return toPose2D(result);
-
     }
 
     public static boolean getTV(String limelightName) {
         return 1.0 == getLimelightNTDouble(limelightName, "tv");
     }
-
-    /////
-    /////
 
     public static void setPipelineIndex(String limelightName, int pipelineIndex) {
         setLimelightNTDouble(limelightName, "pipeline", pipelineIndex);
@@ -827,8 +803,7 @@ public class LimelightHelpers {
     }
 
     /**
-     * The LEDs will be controlled by Limelight pipeline settings, and not by robot
-     * code.
+     * LED'ler Limelight pipeline ayarları tarafından kontrol edilir ve robot kodu ile kontrol edilmez.
      */
     public static void setLEDMode_PipelineControl(String limelightName) {
         setLimelightNTDouble(limelightName, "ledMode", 0);
@@ -867,8 +842,7 @@ public class LimelightHelpers {
     }
 
     /**
-     * Sets the crop window. The crop window in the UI must be completely open for
-     * dynamic cropping to work.
+     * Kesme penceresini ayarlar. Dinamik kırpma işleminin çalışması için UI'deki kesme penceresinin tamamen açık olması gerekir.
      */
     public static void setCropWindow(String limelightName, double cropXMin, double cropXMax, double cropYMin,
             double cropYMax) {
@@ -883,7 +857,6 @@ public class LimelightHelpers {
     public static void SetRobotOrientation(String limelightName, double yaw, double yawRate,
             double pitch, double pitchRate,
             double roll, double rollRate) {
-
         double[] entries = new double[6];
         entries[0] = yaw;
         entries[1] = yawRate;
@@ -914,9 +887,6 @@ public class LimelightHelpers {
         setLimelightNTDoubleArray(limelightName, "camerapose_robotspace_set", entries);
     }
 
-    /////
-    /////
-
     public static void setPythonScriptData(String limelightName, double[] outgoingPythonData) {
         setLimelightNTDoubleArray(limelightName, "llrobot", outgoingPythonData);
     }
@@ -925,11 +895,8 @@ public class LimelightHelpers {
         return getLimelightNTDoubleArray(limelightName, "llpython");
     }
 
-    /////
-    /////
-
     /**
-     * Asynchronously take snapshot.
+     * Asenkron olarak anlık görüntü alır.
      */
     public static CompletableFuture<Boolean> takeSnapshot(String tableName, String snapshotName) {
         return CompletableFuture.supplyAsync(() -> {
@@ -950,7 +917,7 @@ public class LimelightHelpers {
             if (responseCode == 200) {
                 return true;
             } else {
-                System.err.println("Bad LL Request");
+                System.err.println("Kötü LL İsteği");
             }
         } catch (IOException e) {
             System.err.println(e.getMessage());
@@ -959,10 +926,9 @@ public class LimelightHelpers {
     }
 
     /**
-     * Parses Limelight's JSON results dump into a LimelightResults Object
+     * Limelight'ın JSON sonuç dökümünü bir LimelightResults nesnesine ayrıştırır
      */
     public static LimelightResults getLatestResults(String limelightName) {
-
         long start = System.nanoTime();
         LimelightHelpers.LimelightResults results = new LimelightHelpers.LimelightResults();
         if (mapper == null) {

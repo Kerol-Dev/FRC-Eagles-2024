@@ -16,179 +16,160 @@ import frc.robot.Constants.ModuleConstants;
 
 @SuppressWarnings("removal")
 public class SwerveModule {
-  public final TalonFX m_drivingMotor;
-  public final CANSparkMax m_turningSparkMax;
+  public final TalonFX m_drivingMotor; // Sürüş motoru
+  public final CANSparkMax m_turningSparkMax; // Dönüş motoru
 
-  public final RelativeEncoder m_turningEncoder;
+  public final RelativeEncoder m_turningEncoder; // Dönüş enkoderi
 
-  public final CANCoder m_canEncoder;
+  public final CANCoder m_canEncoder; // CAN enkoder
 
-  public final SparkPIDController m_turningPIDController;
+  public final SparkPIDController m_turningPIDController; // Dönüş PID kontrolcüsü
 
-  private double m_chassisAngularOffset = 0;
-  public double encoderOffset;
-  private Rotation2d encoderOffset2d;
+  private double m_chassisAngularOffset = 0; // Şasi açısal ofseti
+  public double encoderOffset; // Enkoder ofseti
+  private Rotation2d encoderOffset2d; // Enkoder ofseti (Rotation2d)
 
-  private SwerveModuleState m_desiredState = new SwerveModuleState(0.0, new Rotation2d());
+  private SwerveModuleState m_desiredState = new SwerveModuleState(0.0, new Rotation2d()); // İstenen durum
 
   @SuppressWarnings("deprecation")
   public SwerveModule(int drivingCANId, int turningCANId, int cancoderID, boolean drivingMotorReversed,
       boolean turningMotorReversed, double encoderOffset, boolean encoderInverted, double chassisAngularOffset) {
 
-    m_chassisAngularOffset = chassisAngularOffset;
-    encoderOffset2d = Rotation2d.fromDegrees(encoderOffset);
+    m_chassisAngularOffset = chassisAngularOffset; // Şasi açısal ofsetini ayarlama
+    encoderOffset2d = Rotation2d.fromDegrees(encoderOffset); // Enkoder ofsetini ayarlama
     this.encoderOffset = encoderOffset;
 
-    m_drivingMotor = new TalonFX(drivingCANId);
-    m_turningSparkMax = new CANSparkMax(turningCANId, MotorType.kBrushless);
+    m_drivingMotor = new TalonFX(drivingCANId); // Sürüş motorunu başlatma
+    m_drivingMotor.setInverted(drivingMotorReversed); // Sürüş motoru yönünü ayarlama
+    m_turningSparkMax = new CANSparkMax(turningCANId, MotorType.kBrushless); // Dönüş motorunu başlatma
 
-    m_canEncoder = new CANCoder(cancoderID);
+    m_canEncoder = new CANCoder(cancoderID); // CAN enkoderi başlatma
 
-    m_canEncoder.configSensorDirection(encoderInverted);
+    m_canEncoder.configSensorDirection(encoderInverted); // Enkoder yönünü ayarlama
 
-    // Factory reset, so we get the SPARKS MAX to a known state before configuring
-    // them. This is useful in case a SPARK MAX is swapped out.
+    // SPARK MAX'i fabrika ayarlarına sıfırlama
     m_turningSparkMax.restoreFactoryDefaults();
 
-    m_turningSparkMax.setInverted(turningMotorReversed);
+    m_turningSparkMax.setInverted(turningMotorReversed); // Dönüş motoru yönünü ayarlama
 
-    // Setup encoders and PID controllers for the driving and turning SPARKS MAX.
+    // Enkoderleri ve PID kontrolcülerini başlatma
     m_turningEncoder = m_turningSparkMax.getEncoder();
     m_turningPIDController = m_turningSparkMax.getPIDController();
     m_turningPIDController.setFeedbackDevice(m_turningEncoder);
 
-    // Apply position and velocity conversion factors for the turning encoder. We
-    // want these in radians and radians per second to use with WPILib's swerve
-    // APIs.
+    // Enkoder konum ve hız dönüştürme faktörlerini ayarlama
     m_turningEncoder.setPositionConversionFactor(ModuleConstants.kTurningEncoderPositionFactor);
     m_turningEncoder.setVelocityConversionFactor(ModuleConstants.kTurningEncoderVelocityFactor);
 
-    // Invert the turning encoder, since the output shaft rotates in the opposite
-    // direction of
-    // the steering motor in the MAXSwerve Module.
-
-    // Enable PID wrap around for the turning motor. This will allow the PID
-    // controller to go through 0 to get to the setpoint i.e. going from 350 degrees
-    // to 10 degrees will go through 0 rather than the other direction which is a
-    // longer route.
+    // Dönüş enkoderini ters çevirme
     m_turningPIDController.setPositionPIDWrappingEnabled(true);
     m_turningPIDController.setPositionPIDWrappingMinInput(ModuleConstants.kTurningEncoderPositionPIDMinInput);
     m_turningPIDController.setPositionPIDWrappingMaxInput(ModuleConstants.kTurningEncoderPositionPIDMaxInput);
 
-    // Set the PID gains for the turning motor. Note these are example gains, and
-    // you
-    // may need to tune them for your own robot!
+    // Dönüş motoru için PID kazançlarını ayarlama
     m_turningPIDController.setP(ModuleConstants.kTurningP);
     m_turningPIDController.setI(ModuleConstants.kTurningI);
     m_turningPIDController.setD(ModuleConstants.kTurningD);
-    m_turningPIDController.setOutputRange(ModuleConstants.kTurningMinOutput,
-        ModuleConstants.kTurningMaxOutput);
+    m_turningPIDController.setOutputRange(ModuleConstants.kTurningMinOutput, ModuleConstants.kTurningMaxOutput);
 
-    m_turningSparkMax.setIdleMode(ModuleConstants.kTurningMotorIdleMode);
-    m_turningSparkMax.setSmartCurrentLimit(ModuleConstants.kTurningMotorCurrentLimit);
+    m_turningSparkMax.setIdleMode(ModuleConstants.kTurningMotorIdleMode); // Boşta modunu ayarlama
+    m_turningSparkMax.setSmartCurrentLimit(ModuleConstants.kTurningMotorCurrentLimit); // Akım sınırını ayarlama
 
-    // Save the SPARK MAX configurations. If a SPARK MAX browns out during
-    // operation, it will maintain the above configurations.
+    // SPARK MAX yapılandırmalarını kaydetme
     m_turningSparkMax.burnFlash();
 
-    // m_desiredState.angle = new Rotation2d(m_turningEncoder.getPosition());
-    // resetEncoders();
-
-    m_chassisAngularOffset = chassisAngularOffset;
-    m_desiredState.angle = new Rotation2d(0);
+    m_chassisAngularOffset = chassisAngularOffset; // Şasi açısal ofsetini ayarlama
+    m_desiredState.angle = new Rotation2d(0); // İstenen durumu ayarlama
   }
 
   public SwerveModuleState getState() {
-    return new SwerveModuleState(m_drivingMotor.getVelocity().getValueAsDouble() * 60, getAngle());
+    return new SwerveModuleState(m_drivingMotor.getVelocity().getValueAsDouble() * 60, getAngle()); // Modül durumunu alma
   }
 
   public SwerveModulePosition getPosition() {
-    return new SwerveModulePosition(getMotorPosition(), getAngle());
+    return new SwerveModulePosition(getMotorPosition(), getAngle()); // Modül pozisyonunu alma
   }
 
   private Rotation2d getAngle() {
-    return Rotation2d
-        .fromRadians(m_turningEncoder.getPosition() - m_chassisAngularOffset);
+    return Rotation2d.fromRadians(m_turningEncoder.getPosition() - m_chassisAngularOffset); // Modül açısını alma
   }
 
-  private double getMotorPosition()
-  {
-    return m_drivingMotor.getPosition().getValueAsDouble() * ModuleConstants.kDrivingEncoderPositionFactor;
+  private double getMotorPosition() {
+    return m_drivingMotor.getPosition().getValueAsDouble() * ModuleConstants.kDrivingEncoderPositionFactor; // Motor pozisyonunu alma
   }
 
   @SuppressWarnings("deprecation")
   public void updateSmartDashboard() {
-    SmartDashboard.putNumber("Cancoder_" + m_canEncoder.getDeviceID(),
-        getCanCoder().getDegrees());
+    SmartDashboard.putNumber("Cancoder_" + m_canEncoder.getDeviceID(), getCanCoder().getDegrees()); // SmartDashboard'a CAN enkoder verilerini yazdırma
     SmartDashboard.putNumber("Turning Angle" + m_canEncoder.getDeviceID(),
-        Math.toDegrees((Math.abs(m_turningEncoder.getPosition()) % (2.0 * Math.PI))));
-    SmartDashboard.putNumber("Driving Distance" + m_canEncoder.getDeviceID(), getMotorPosition());
+        Math.toDegrees((Math.abs(m_turningEncoder.getPosition()) % (2.0 * Math.PI)))); // SmartDashboard'a dönüş açısını yazdırma
+    SmartDashboard.putNumber("Driving Distance" + m_canEncoder.getDeviceID(), getMotorPosition()); // SmartDashboard'a sürüş mesafesini yazdırma
   }
 
   public void setDesiredState(SwerveModuleState desiredState) {
-    // Apply chassis angular offset to the desired state.
+    // İstenen duruma şasi açısal ofsetini uygula
     SwerveModuleState correctedDesiredState = new SwerveModuleState();
 
     correctedDesiredState.speedMetersPerSecond = desiredState.speedMetersPerSecond;
     correctedDesiredState.angle = desiredState.angle.plus(Rotation2d.fromRadians(m_chassisAngularOffset));
 
-    // Optimize the reference state to avoid spinning further than 90 degrees.
+    // İstenen durumu optimize et
     SwerveModuleState optimizedDesiredState = SwerveModuleState.optimize(correctedDesiredState,
         new Rotation2d(m_turningEncoder.getPosition()));
 
-    // Command driving and turning SPARKS MAX towards their respective setpoints.
+    // Sürüş ve dönüş motorlarını hedef duruma yönlendir
     m_drivingMotor.set(optimizedDesiredState.speedMetersPerSecond / DriveConstants.kMaxSpeedMetersPerSecond);
     if (Math.abs(optimizedDesiredState.speedMetersPerSecond) < 0.006)
       m_drivingMotor.stopMotor();
     m_turningPIDController.setReference(optimizedDesiredState.angle.getRadians(), CANSparkMax.ControlType.kPosition);
 
-    m_desiredState = desiredState;
+    m_desiredState = desiredState; // İstenen durumu ayarla
   }
 
   public SwerveModuleState getDesiredState() {
-    return m_desiredState;
+    return m_desiredState; // İstenen durumu döndür
   }
 
-  /** Zeroes all the SwerveModule encoders. */
+  /** Tüm SwerveModule enkoderlerini sıfırlar. */
   public void resetEncoders() {
-    m_drivingMotor.setPosition(0);
+    m_drivingMotor.setPosition(0); // Enkoderleri sıfırla
   }
 
   @SuppressWarnings("deprecation")
   public Rotation2d getCanCoder() {
-    return Rotation2d.fromDegrees((m_canEncoder.getAbsolutePosition()));
+    return Rotation2d.fromDegrees((m_canEncoder.getAbsolutePosition())); // CAN enkoder pozisyonunu döndür
   }
 
   public void resetToAbsolute() {
-    double absolutePosition = getCanCoder().getRadians() - encoderOffset2d.getRadians();
-    m_turningEncoder.setPosition(absolutePosition);
+    double absolutePosition = getCanCoder().getRadians() - encoderOffset2d.getRadians(); // Mutlak pozisyonu hesapla
+    m_turningEncoder.setPosition(absolutePosition); // Enkoder pozisyonunu ayarla
 
-    resetEncoders();
+    resetEncoders(); // Enkoderleri sıfırla
   }
 
   public void stop() {
-    m_drivingMotor.set(0);
-    m_turningSparkMax.set(0);
+    m_drivingMotor.set(0); // Sürüş motorunu durdur
+    m_turningSparkMax.set(0); // Dönüş motorunu durdur
   }
 
   SwerveModuleState lastState;
 
   public static SwerveModuleState optimize(
       SwerveModuleState desiredState, Rotation2d currentAngle) {
-    double targetAngle = placeInAppropriate0To360Scope(currentAngle.getDegrees(), desiredState.angle.getDegrees());
-    double targetSpeed = desiredState.speedMetersPerSecond;
+    double targetAngle = placeInAppropriate0To360Scope(currentAngle.getDegrees(), desiredState.angle.getDegrees()); // Hedef açıyı belirle
+    double targetSpeed = desiredState.speedMetersPerSecond; // Hedef hızı belirle
     double delta = targetAngle - currentAngle.getDegrees();
     if (Math.abs(delta) > 90) {
       targetSpeed = -targetSpeed;
-      targetAngle = delta > 90 ? (targetAngle -= 180) : (targetAngle += 180);
+      targetAngle = delta > 90 ? (targetAngle -= 180) : (targetAngle += 180); // Hedef açıyı optimize et
     }
-    return new SwerveModuleState(targetSpeed, Rotation2d.fromDegrees(targetAngle));
+    return new SwerveModuleState(targetSpeed, Rotation2d.fromDegrees(targetAngle)); // İstenen durumu döndür
   }
 
   /**
-   * @param scopeReference Current Angle
-   * @param newAngle       Target Angle
-   * @return Closest angle within scope
+   * @param scopeReference Mevcut Açı
+   * @param newAngle       Hedef Açı
+   * @return Yakın açıyı döndür
    */
 
   private static double placeInAppropriate0To360Scope(double scopeReference, double newAngle) {
@@ -213,7 +194,7 @@ public class SwerveModule {
     } else if (newAngle - scopeReference < -180) {
       newAngle += 360;
     }
-    return newAngle;
+    return newAngle; // En yakın açıyı döndür
   }
 
 }

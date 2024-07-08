@@ -8,44 +8,42 @@ import frc.robot.RobotContainer;
 import frc.robot.subsystems.DriveSubsystem;
 
 public class RotateToTarget extends Command {
-  private DriveSubsystem drivetrain;
-  private PIDController pidRotation;
-  private boolean isFinished = false;
+  private DriveSubsystem drivetrain; // Sürüş sistemi referansı
+  private PIDController pidRotation; // PID kontrolcüsü referansı
+  private boolean isFinished = false; // Komut bitme durumu
 
   public RotateToTarget(DriveSubsystem dt) {
-    drivetrain = dt;
+    drivetrain = dt; // Sürüş sistemini başlatma
 
-    pidRotation = new PIDController(0.01, 0, 0);
-    pidRotation.setTolerance(1);
+    pidRotation = new PIDController(0.01, 0, 0); // PID kontrolcüsünü başlatma
+    pidRotation.setTolerance(1); // PID toleransını ayarlama
 
-    addRequirements(dt);
+    addRequirements(dt); // Gereksinimleri ekleme
   }
 
   @Override
   public void execute() {
-    if(!LimelightHelpers.getTV(""))
-    {
-      RobotContainer.driverController.getHID().setRumble(RumbleType.kBothRumble, 0.5);
+    if (!LimelightHelpers.getTV("")) {
+      RobotContainer.driverController.getHID().setRumble(RumbleType.kBothRumble, 0.5); // Limelight TV sinyali yoksa kumandayı titreştir
     }
 
-    double rotation = pidRotation.calculate(LimelightHelpers.getTX(""), 0);
-    drivetrain.drive(0, 0, rotation, false, false);
+    double rotation = pidRotation.calculate(LimelightHelpers.getTX(""), 0); // PID kontrolcüsü ile dönüş hesaplama
+    drivetrain.drive(0, 0, rotation, false, false); // Sürüş sistemini döndürme
 
-    if(pidRotation.atSetpoint())
-    {
-      isFinished = true;
+    if (pidRotation.atSetpoint()) {
+      isFinished = true; // PID set noktasına ulaştıysa komutu bitirme durumu
     }
   }
 
   @Override
   public void end(boolean interrupted) {
-    isFinished = false;
-    drivetrain.drive(0, 0, 0, false, false);
-    RobotContainer.driverController.getHID().setRumble(RumbleType.kBothRumble, 0);
+    isFinished = false; // Komut bitme durumunu sıfırlama
+    drivetrain.drive(0, 0, 0, false, false); // Sürüş sistemini durdurma
+    RobotContainer.driverController.getHID().setRumble(RumbleType.kBothRumble, 0); // Kumanda titreşimini durdurma
   }
 
   @Override
   public boolean isFinished() {
-    return isFinished;
+    return isFinished; // Komut bitme durumunu döndürme
   }
 }

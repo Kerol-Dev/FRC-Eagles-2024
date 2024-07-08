@@ -8,33 +8,29 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class FeederSubsystem extends SubsystemBase {
-    private final CANSparkMax feederMotor = new CANSparkMax(9, MotorType.kBrushless);
-    private final CANSparkMax feederMotor2 = new CANSparkMax(10, MotorType.kBrushless);
+    private final CANSparkMax feederMotor = new CANSparkMax(13, MotorType.kBrushless); // Besleyici motoru
+    private final CANSparkMax feederMotor2 = new CANSparkMax(9, MotorType.kBrushless); // İkinci besleyici motoru
 
-    public FeederSubsystem()
-    {
-        feederMotor.restoreFactoryDefaults();
-        feederMotor.setIdleMode(IdleMode.kBrake);
-        feederMotor.setInverted(true);
+    public FeederSubsystem() {
+        feederMotor.restoreFactoryDefaults(); // Motoru fabrika ayarlarına sıfırlama
+        feederMotor.setIdleMode(IdleMode.kBrake); // Motor boşta frenleme modu
+        feederMotor.setInverted(false); // Motor yönü
 
-        feederMotor2.restoreFactoryDefaults();
-        feederMotor2.setIdleMode(IdleMode.kBrake);
-        feederMotor2.setInverted(false);
+        feederMotor2.restoreFactoryDefaults(); // İkinci motoru fabrika ayarlarına sıfırlama
+        feederMotor2.setIdleMode(IdleMode.kBrake); // İkinci motor boşta frenleme modu
+        feederMotor2.setInverted(true); // İkinci motor yönü
     }
 
-    public Command setFeederSpeed(double speed)
-    {
-        return Commands.runOnce(() -> setSpeeds(speed));
+    public Command setFeederSpeed(double speed) {
+        return Commands.runOnce(() -> setSpeeds(speed)); // Besleyici hızını ayarlama komutu
     }
 
-    private void setSpeeds(double speed)
-    {
-        feederMotor.set(speed);
-        feederMotor2.set(speed);
+    private void setSpeeds(double speed) {
+        feederMotor.set(-speed); // Besleyici motoru hızını ayarlama
+        feederMotor2.set(speed); // İkinci besleyici motoru hızını ayarlama
     }
 
-    public Command stopFeeder()
-    {
-        return Commands.runOnce(() -> setSpeeds(0));
+    public Command stopFeeder() {
+        return Commands.runOnce(() -> setSpeeds(0)); // Besleyiciyi durdurma komutu
     }
 }

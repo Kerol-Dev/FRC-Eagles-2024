@@ -7,7 +7,6 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -15,141 +14,134 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
 
 public class ShooterSubsystem extends SubsystemBase {
-    private final CANSparkMax shooterMotorUpper = new CANSparkMax(12, MotorType.kBrushless);
-    private final CANSparkMax shooterMotorLower = new CANSparkMax(11, MotorType.kBrushless);
-    public static final CANSparkMax shooterMotorHinge = new CANSparkMax(14, MotorType.kBrushless);
+    private final CANSparkMax shooterMotorUpper = new CANSparkMax(7, MotorType.kBrushless); // Üst atıcı motoru
+    private final CANSparkMax shooterMotorLower = new CANSparkMax(8, MotorType.kBrushless); // Alt atıcı motoru
+    public static final CANSparkMax shooterMotorHinge = new CANSparkMax(11, MotorType.kBrushless); // Atıcı menteşe motoru
 
-    public final DigitalInput shooterHome = new DigitalInput(1);
-    private SparkPIDController shooterMotorUpperPID;
-    private SparkPIDController shooterMotorLowerPID;
-    private SparkPIDController shooterMotorHingePID;
+    private SparkPIDController shooterMotorUpperPID; // Üst atıcı motoru PID kontrolcüsü
+    private SparkPIDController shooterMotorLowerPID; // Alt atıcı motoru PID kontrolcüsü
+    private SparkPIDController shooterMotorHingePID; // Atıcı menteşe motoru PID kontrolcüsü
 
-    private double velocityKp = 0.01;
-    private double velocityKi = 0;
-    private double velocityKd = 0;
+    private double velocityKp = 0.0006; // Hız PID P parametresi
+    private double velocityKi = 0; // Hız PID I parametresi
+    private double velocityKd = 0; // Hız PID D parametresi
 
-    private double positionKp = 0.35;
-    private double positionKi = 0;
-    private double positionKd = 0;
-    private double positionMaxOutput = 0.45;
+    private double positionKp = 0.45; // Pozisyon PID P parametresi
+    private double positionKi = 0; // Pozisyon PID I parametresi
+    private double positionKd = 0; // Pozisyon PID D parametresi
+    private double positionMaxOutput = 0.6; // Pozisyon maksimum çıkış
 
-    private int RPMTolerance = 100;
-    private double angleTolerance = 0.35;
+    private int RPMTolerance = 250; // RPM toleransı
+    private double angleTolerance = 0.20; // Açı toleransı
 
-    public double goalAngle = 0;
-    public double ovverideAngle = 0;
+    public double goalAngle = 0; // Hedef açı
+    public double ovverideAngle = 0; // Geçersiz kılma açısı
 
     public ShooterSubsystem() {
-        shooterMotorUpper.restoreFactoryDefaults();
-        shooterMotorUpper.setIdleMode(IdleMode.kBrake);
-        shooterMotorUpper.setInverted(false);
-        shooterMotorUpperPID = shooterMotorUpper.getPIDController();
-        shooterMotorUpperPID.setFeedbackDevice(shooterMotorUpper.getEncoder());
+        shooterMotorUpper.restoreFactoryDefaults(); // Üst motoru fabrika ayarlarına sıfırlama
+        shooterMotorUpper.setIdleMode(IdleMode.kBrake); // Üst motor boşta frenleme modu
+        shooterMotorUpper.setInverted(false); // Üst motor yönü
+        shooterMotorUpperPID = shooterMotorUpper.getPIDController(); // Üst motor PID kontrolcüsünü alma
+        shooterMotorUpperPID.setFeedbackDevice(shooterMotorUpper.getEncoder()); // Geri bildirim cihazı olarak enkoder kullanma
 
-        shooterMotorUpperPID.setP(velocityKp);
-        shooterMotorUpperPID.setI(velocityKi);
-        shooterMotorUpperPID.setD(velocityKd);
+        shooterMotorUpperPID.setP(velocityKp); // Hız PID P parametresini ayarlama
+        shooterMotorUpperPID.setI(velocityKi); // Hız PID I parametresini ayarlama
+        shooterMotorUpperPID.setD(velocityKd); // Hız PID D parametresini ayarlama
 
-        shooterMotorLower.restoreFactoryDefaults();
-        shooterMotorLower.setIdleMode(IdleMode.kBrake);
-        shooterMotorLower.setInverted(false);
-        shooterMotorLowerPID = shooterMotorLower.getPIDController();
-        shooterMotorLowerPID.setFeedbackDevice(shooterMotorLower.getEncoder());
+        shooterMotorLower.restoreFactoryDefaults(); // Alt motoru fabrika ayarlarına sıfırlama
+        shooterMotorLower.setIdleMode(IdleMode.kBrake); // Alt motor boşta frenleme modu
+        shooterMotorLower.setInverted(false); // Alt motor yönü
+        shooterMotorLowerPID = shooterMotorLower.getPIDController(); // Alt motor PID kontrolcüsünü alma
+        shooterMotorLowerPID.setFeedbackDevice(shooterMotorLower.getEncoder()); // Geri bildirim cihazı olarak enkoder kullanma
 
-        shooterMotorLowerPID.setP(velocityKp);
-        shooterMotorLowerPID.setI(velocityKi);
-        shooterMotorLowerPID.setD(velocityKd);
+        shooterMotorLowerPID.setP(velocityKp); // Hız PID P parametresini ayarlama
+        shooterMotorLowerPID.setI(velocityKi); // Hız PID I parametresini ayarlama
+        shooterMotorLowerPID.setD(velocityKd); // Hız PID D parametresini ayarlama
 
-        shooterMotorHinge.restoreFactoryDefaults();
-        shooterMotorHinge.setIdleMode(IdleMode.kCoast);
-        shooterMotorHinge.setInverted(false);
-        shooterMotorHingePID = shooterMotorHinge.getPIDController();
-        shooterMotorHingePID.setFeedbackDevice(shooterMotorHinge.getEncoder());
+        shooterMotorHinge.restoreFactoryDefaults(); // Menteşe motorunu fabrika ayarlarına sıfırlama
+        shooterMotorHinge.setIdleMode(IdleMode.kCoast); // Menteşe motoru boşta sürüklenme modu
+        shooterMotorHinge.setInverted(true); // Menteşe motoru yönü
+        shooterMotorHingePID = shooterMotorHinge.getPIDController(); // Menteşe motoru PID kontrolcüsünü alma
+        shooterMotorHingePID.setFeedbackDevice(shooterMotorHinge.getEncoder()); // Geri bildirim cihazı olarak enkoder kullanma
 
-        shooterMotorHingePID.setP(positionKp);
-        shooterMotorHingePID.setI(positionKi);
-        shooterMotorHingePID.setD(positionKd);
-        shooterMotorHingePID.setOutputRange(-positionMaxOutput, positionMaxOutput);
+        shooterMotorHingePID.setP(positionKp); // Pozisyon PID P parametresini ayarlama
+        shooterMotorHingePID.setI(positionKi); // Pozisyon PID I parametresini ayarlama
+        shooterMotorHingePID.setD(positionKd); // Pozisyon PID D parametresini ayarlama
+        shooterMotorHingePID.setOutputRange(-positionMaxOutput, positionMaxOutput); // Pozisyon maksimum çıkış aralığını ayarlama
 
-        shooterMotorHinge.getEncoder().setPosition(0);
+        shooterMotorHinge.getEncoder().setPosition(0); // Enkoder pozisyonunu sıfırlama
 
-        shooterMotorHinge.enableSoftLimit(SoftLimitDirection.kForward, true);
-        shooterMotorHinge.enableSoftLimit(SoftLimitDirection.kReverse, true);
+        shooterMotorHinge.enableSoftLimit(SoftLimitDirection.kForward, true); // İleri yumuşak limiti etkinleştirme
+        shooterMotorHinge.enableSoftLimit(SoftLimitDirection.kReverse, true); // Geri yumuşak limiti etkinleştirme
 
-        shooterMotorHinge.setSoftLimit(SoftLimitDirection.kForward, 0);
-        shooterMotorHinge.setSoftLimit(SoftLimitDirection.kReverse, -30);
-        shooterMotorHingePID.setReference(-3, ControlType.kPosition);
+        shooterMotorHinge.setSoftLimit(SoftLimitDirection.kForward, 0); // İleri yumuşak limit değerini ayarlama
+        shooterMotorHinge.setSoftLimit(SoftLimitDirection.kReverse, -95); // Geri yumuşak limit değerini ayarlama
+        shooterMotorHingePID.setReference(-35, ControlType.kPosition); // Menteşe pozisyonunu ayarlama
     }
 
     @Override
     public void periodic() {
-        goalAngle = ovverideAngle < 0 ? ovverideAngle : LimelightHelpers.calculateShootingAngle();
+        goalAngle = ovverideAngle < 0 ? ovverideAngle : LimelightHelpers.calculateShootingAngle(); // Hedef açıyı hesaplama
 
-        SmartDashboard.putNumber("Upper Shooter RPM", shooterMotorUpper.getEncoder().getVelocity());
-        SmartDashboard.putNumber("Lower Shooter RPM", shooterMotorLower.getEncoder().getVelocity());
-        SmartDashboard.putNumber("Shooter Position", shooterMotorHinge.getEncoder().getPosition());
-        SmartDashboard.putBoolean("Home Shooter", !shooterHome.get());
+        SmartDashboard.putNumber("Upper Shooter RPM", shooterMotorUpper.getEncoder().getVelocity()); // Üst motor RPM değerini SmartDashboard'a yazdırma
+        SmartDashboard.putNumber("Lower Shooter RPM", shooterMotorLower.getEncoder().getVelocity()); // Alt motor RPM değerini SmartDashboard'a yazdırma
+        SmartDashboard.putNumber("Shooter Position", shooterMotorHinge.getEncoder().getPosition()); // Menteşe pozisyonunu SmartDashboard'a yazdırma
     }
 
     public double getShooterRPM(boolean upper) {
-        return upper ? shooterMotorUpper.getEncoder().getVelocity() : shooterMotorLower.getEncoder().getVelocity();
+        return upper ? shooterMotorUpper.getEncoder().getVelocity() : shooterMotorLower.getEncoder().getVelocity(); // Motor RPM değerini alma
     }
 
     public boolean shooterAtGoalRPM(int goalRPM) {
-        return getShooterRPM(true) >= goalRPM || Math.abs(getShooterRPM(true) - goalRPM) <= RPMTolerance;
+        return getShooterRPM(true) >= goalRPM || Math.abs(getShooterRPM(true) - goalRPM) <= RPMTolerance; // Motor hedef RPM değerinde mi
     }
 
     public boolean shooterHingeAtGoal() {
-        return Math.abs(shooterMotorHinge.getEncoder().getPosition() - goalAngle) <= angleTolerance;
+        return Math.abs(shooterMotorHinge.getEncoder().getPosition() - goalAngle) <= angleTolerance; // Menteşe hedef pozisyonda mı
     }
 
     public Command setShooterRPM(double goalRPM) {
-        return Commands.runOnce(() -> setShooterRPMLocal(goalRPM));
+        return Commands.runOnce(() -> setShooterRPMLocal(goalRPM)); // Motor RPM değerini ayarlama komutu
     }
 
     private void setShooterRPMLocal(double goalRPM) {
         if (goalRPM == 0) {
-            stopShooterMotorsLocal();
+            stopShooterMotorsLocal(); // Motorları durdur
             return;
         }
 
-        shooterMotorUpperPID.setReference(goalRPM, ControlType.kVelocity);
-        shooterMotorLowerPID.setReference(goalRPM, ControlType.kVelocity);
+        double percent = goalRPM / 5500.0; // RPM'yi yüzdelik değere çevir
+        shooterMotorUpper.set(percent); // Üst motor hızını ayarla
+        shooterMotorLower.set(percent); // Alt motor hızını ayarla
     }
 
     public Command setShooterAngle() {
-        return Commands.run(() -> setShooterAngleLocal());
-    }
-
-    public Command setShooterBack() {
-        return Commands.run(() -> shooterMotorHinge.set(0.15))
-                .andThen(Commands.runOnce(() -> shooterMotorHinge.enableSoftLimit(SoftLimitDirection.kForward, false)));
+        return Commands.run(() -> setShooterAngleLocal()); // Atıcı açısını ayarlama komutu
     }
 
     public Command stopShooterHinge() {
-        return Commands.run(() -> shooterMotorHinge.set(0))
-                .andThen(Commands.runOnce(() -> shooterMotorHinge.enableSoftLimit(SoftLimitDirection.kForward, true)));
+        return Commands.run(() -> shooterMotorHinge.set(0)); // Menteşe motorunu durdurma komutu
     }
 
     public Command resetShooterPosition() {
-        return Commands.run(() -> shooterMotorHinge.getEncoder().setPosition(0));
+        return Commands.run(() -> shooterMotorHinge.getEncoder().setPosition(0)); // Menteşe pozisyonunu sıfırlama komutu
     }
 
     public Command setOvverideAngle(double angle) {
-        return Commands.runOnce(() -> ovverideAngle = angle);
+        return Commands.runOnce(() -> ovverideAngle = angle); // Geçersiz kılma açısını ayarlama komutu
     }
 
     public void setShooterAngleLocal() {
         if (goalAngle <= 0)
-            shooterMotorHingePID.setReference(goalAngle, ControlType.kPosition);
+            shooterMotorHingePID.setReference(goalAngle, ControlType.kPosition); // Menteşe pozisyonunu ayarla
     }
 
     public Command stopShooterMotors() {
-        return Commands.runOnce(() -> stopShooterMotorsLocal());
+        return Commands.runOnce(() -> stopShooterMotorsLocal()); // Motorları durdurma komutu
     }
 
     public void stopShooterMotorsLocal() {
-        shooterMotorUpper.stopMotor();
-        shooterMotorLower.stopMotor();
+        shooterMotorUpper.stopMotor(); // Üst motoru durdur
+        shooterMotorLower.stopMotor(); // Alt motoru durdur
     }
 }

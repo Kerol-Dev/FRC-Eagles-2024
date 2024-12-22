@@ -26,10 +26,10 @@ public class ShooterSubsystem extends SubsystemBase {
     private double velocityKi = 0; // Hız PID I parametresi
     private double velocityKd = 0; // Hız PID D parametresi
 
-    private double positionKp = 0.45; // Pozisyon PID P parametresi
+    private double positionKp = 0.2; // Pozisyon PID P parametresi
     private double positionKi = 0; // Pozisyon PID I parametresi
     private double positionKd = 0; // Pozisyon PID D parametresi
-    private double positionMaxOutput = 0.6; // Pozisyon maksimum çıkış
+    private double positionMaxOutput = 0.3; // Pozisyon maksimum çıkış
 
     private int RPMTolerance = 250; // RPM toleransı
     private double angleTolerance = 0.20; // Açı toleransı
@@ -80,9 +80,17 @@ public class ShooterSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Upper Shooter RPM", shooterMotorUpper.getEncoder().getVelocity()); // Üst motor RPM değerini SmartDashboard'a yazdırma
-        SmartDashboard.putNumber("Lower Shooter RPM", shooterMotorLower.getEncoder().getVelocity()); // Alt motor RPM değerini SmartDashboard'a yazdırma
+        if(goalAngle == 0)
+        goalAngle = -4;
+
+        SmartDashboard.putNumber("Target Angle", goalAngle);
+
         SmartDashboard.putNumber("Shooter Position", shooterMotorHinge.getEncoder().getPosition()); // Menteşe pozisyonunu SmartDashboard'a yazdırma
+    }
+
+    public Command resetAngle()
+    {
+        return Commands.runOnce(() -> shooterMotorHinge.getEncoder().setPosition(-4));
     }
 
     public double getShooterRPM(boolean upper) {
@@ -113,13 +121,11 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public Command setShooterAngle() {
-        goalAngle = LimelightHelpers.calculateShootingAngle();
-        return Commands.run(() -> setShooterAngleLocal()); // Atıcı açısını ayarlama komutu
+        return Commands.run(() -> setShooterAngleLocal()).alongWith(Commands.runOnce(() -> goalAngle = LimelightHelpers.calculateShootingAngle())); // Atıcı açısını ayarlama komutu
     }
 
     public Command setAmpAngle(int angle) {
-        goalAngle = angle;
-        return Commands.run(() -> setShooterAngleLocal()); // Atıcı açısını ayarlama komutu
+        return Commands.run(() -> setShooterAngleLocal()).alongWith(Commands.runOnce(() -> goalAngle = angle)); // Atıcı açısını ayarlama komutu
     }
 
     public Command stopShooterHinge() {

@@ -8,9 +8,9 @@ public final class Constants {
   public static final class DriveConstants {
 
     public static final double kMaxSpeedMetersPerSecond = 4.8; // Maksimum hız (m/s)
-    public static final double kMaxAcceleration = 1.9; // Maksimum ivme
+    public static final double kMaxAcceleration = 1; // Maksimum ivme
     public static final double kMaxAngularSpeed = 2 * Math.PI; // Maksimum açısal hız
-    public static final double kMaxAngularAcceleration = 3.2; // Maksimum açısal ivme
+    public static final double kMaxAngularAcceleration = 2; // Maksimum açısal ivme
 
     // Şasi konfigürasyonu
     public static final double kTrackWidth = 0.679; // Sağ ve sol tekerlekler arasındaki mesafe

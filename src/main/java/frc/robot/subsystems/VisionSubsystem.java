@@ -4,6 +4,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
 import frc.robot.Constants.DriveConstants;
@@ -30,6 +31,7 @@ public class VisionSubsystem extends SubsystemBase {
   public void periodic() {
     LimelightHelpers.SetRobotOrientation("", swerve.getHeading().getDegrees(), 0, 0, 0, 0, 0); // Robot yönünü ayarla
 
+    SmartDashboard.putNumber("Z Mesage", LimelightHelpers.getTargetPose3d_RobotSpace("").getZ());
     poseEst.update(swerve.getHeading(), new SwerveModulePosition[] {
         DriveSubsystem.m_frontLeft.getPosition(),
         DriveSubsystem.m_frontRight.getPosition(),
@@ -43,7 +45,6 @@ public class VisionSubsystem extends SubsystemBase {
 
     if (blueRightBotPose.rawFiducials.length > 0) {
       if (getAvgTA(blueRightBotPose.rawFiducials) > 0.0025) {
-        System.out.println("aa");
         poseEst.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999)); // Görüş ölçüm standart sapmalarını ayarla
         poseEst.addVisionMeasurement(blueRightBotPose.pose, blueRightBotPose.timestampSeconds); // Görüş ölçümü ekle
       }

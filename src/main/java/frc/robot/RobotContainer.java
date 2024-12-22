@@ -14,8 +14,10 @@ import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -39,6 +41,7 @@ public class RobotContainer {
   public final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem();
   public final FeederSubsystem m_FeederSubsystem = new FeederSubsystem();
   public final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem();
+  public final VisionSubsystem m_VisionSubsystem = new VisionSubsystem(m_robotDrive);
 
   // Otomatik komut seçici
   public static SendableChooser<Command> autoChooser = new SendableChooser<Command>();
@@ -48,8 +51,6 @@ public class RobotContainer {
 
   // RobotContainer yapıcısı
   public RobotContainer() {
-    NamedCommands.registerCommand("ShootNote", automaticShootNote());
-    NamedCommands.registerCommand("IntakeInit", intakeGrabNote());
     // Varsayılan komutu ayarla
     m_robotDrive.setDefaultCommand(
         new RunCommand(
@@ -60,6 +61,8 @@ public class RobotContainer {
                 true,
                 slowSpeedEnabled),
             m_robotDrive));
+    
+    m_ShooterSubsystem.setDefaultCommand(new RunCommand(() -> m_ShooterSubsystem.setShooterAngleLocal(), m_ShooterSubsystem));
 
     // Düğme bağlamalarını yapılandır
     configureButtonBindings();
@@ -70,8 +73,8 @@ public class RobotContainer {
   // PathPlanner'ı yapılandırma fonksiyonu
   private void configurePathPlanner() {
     // NamedCommands kullanarak komutları kayıt et
-    NamedCommands.registerCommand("IntakeInit", intakeGrabNote());
-    NamedCommands.registerCommand("ShootNote", new SequentialCommandGroup(automaticShootNote(), new WaitCommand(0.25), m_ShooterSubsystem.stopShooterMotors()));
+    NamedCommands.registerCommand("IntakeInit", intakeGrabNote().andThen(m_ShooterSubsystem.resetAngle()));
+    NamedCommands.registerCommand("ShootNote", new ConditionalCommand(automaticShootNote().andThen(resetShooter()), new WaitCommand(1.5), m_IntakeSubsystem::hasNote));
     // Otomatik komut seçici yapılandır
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData(autoChooser);
@@ -82,9 +85,10 @@ public class RobotContainer {
     // Başlığı sıfırlama
     driverController.start().onTrue(new InstantCommand(() -> m_robotDrive.zeroHeading()));
 
+    driverController.x().whileTrue(m_ShooterSubsystem.resetAngle());
     // Nota tutma komutu
     driverController.b().whileTrue(
-        intakeGrabNote()).onFalse(stopIntake().alongWith(resetRumble()).alongWith(m_FeederSubsystem.stopFeeder()));
+        resetShooter().andThen(intakeGrabNote())).onFalse(stopIntake().alongWith(resetRumble()).alongWith(m_FeederSubsystem.stopFeeder()));
 
     // Açıyı ayarla ve atış yap
     driverController.rightTrigger().whileTrue(automaticShootNote())
@@ -172,8 +176,8 @@ public class RobotContainer {
 
   // Otomatik nota atışı komutu
   private Command automaticShootNote() {
-    return new ParallelDeadlineGroup(checkPossibility(), new RotateToTarget(m_robotDrive),
-        m_ShooterSubsystem.setShooterRPM(5500).alongWith(m_ShooterSubsystem.setShooterAngle())
+      return new ParallelDeadlineGroup(checkPossibility(), new RotateToTarget(m_robotDrive),
+          m_ShooterSubsystem.setShooterRPM(5500).alongWith(m_ShooterSubsystem.setShooterAngle())
             .alongWith(new WaitUntilCommand(
                 () -> m_ShooterSubsystem.shooterAtGoalRPM(5500) && m_ShooterSubsystem.shooterHingeAtGoal())
                 .andThen(new WaitCommand(0.3)).andThen(m_FeederSubsystem.setFeederSpeed(1))));

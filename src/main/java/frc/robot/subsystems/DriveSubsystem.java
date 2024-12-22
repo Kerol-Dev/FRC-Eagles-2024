@@ -78,14 +78,14 @@ public class DriveSubsystem extends SubsystemBase {
         this::getSpeeds, // Hızları al
         this::setSpeeds, // Hızları ayarla
         new HolonomicPathFollowerConfig(
-            new PIDConstants(2), // PID P parametresi
+            new PIDConstants(3), // PID P parametresi
             new PIDConstants(3), // PID I parametresi
             4.5, // PID D parametresi
             0.427f, // Maksimum hız
             new ReplanningConfig()), // Yeniden planlama yapılandırması
         () -> {
           var alliance = DriverStation.getAlliance(); // Takım bilgisi
-          return alliance.isPresent() && alliance.get() == DriverStation.Alliance.Blue; // Takım mavi mi
+          return alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red; // Takım mavi mi
         }, this);
   }
 
@@ -199,6 +199,7 @@ public class DriveSubsystem extends SubsystemBase {
     m_frontRight.resetToAbsolute(); // Ön sağ mutlak pozisyonu sıfırla
     m_rearLeft.resetToAbsolute(); // Arka sol mutlak pozisyonu sıfırla
     m_rearRight.resetToAbsolute(); // Arka sağ mutlak pozisyonu sıfırla
+    m_gyro.reset(); // Gyro'yu sıfırla
   }
 
   public void stop() {

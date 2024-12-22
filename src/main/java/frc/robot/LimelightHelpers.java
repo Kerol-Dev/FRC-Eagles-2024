@@ -542,35 +542,33 @@ public class LimelightHelpers {
     }
 
     // Sabitler fonksiyon dışında tanımlanır
-    public final static double MIN_DISTANCE = 1.75;
-    public final static double MAX_DISTANCE = 4;
-    final static double MIN_ANGLE = -52;
-    final static double MAX_ANGLE = -25;
+    public final static double MIN_DISTANCE = 1.5;
+    public final static double MAX_DISTANCE = 2.5;
+    final static double MIN_ANGLE = -41.5;
+    final static double MAX_ANGLE = -34;
 
     // Verilen mesafe için gereken atış açısını hesaplayan fonksiyon
     public static double calculateShootingAngle() {
-        double manualAngle = SmartDashboard.getNumber("Manual Shooter Angles", 0);
-        if (manualAngle < 0)
-            return manualAngle;
-
-        SmartDashboard.putNumber("Limelight 3D Z", getTargetPose3d_CameraSpace("").getZ());
+        SmartDashboard.putNumber("Limelight 3D Z", getTargetPose3d_RobotSpace("").getZ());
         SmartDashboard.putNumber("Limelight tX", getTX(""));
+
 
         if (!getTV(""))
             return -25;
 
-        double targetDistance = LimelightHelpers.getTargetPose3d_CameraSpace("").getZ();
+        double targetDistance = LimelightHelpers.getTargetPose3d_RobotSpace("").getZ();
 
         double distanceRatio = (targetDistance - MIN_DISTANCE) / (MAX_DISTANCE - MIN_DISTANCE);
 
         double angle = MIN_ANGLE + (MAX_ANGLE - MIN_ANGLE) * distanceRatio;
+        System.out.println(angle);
 
         return angle;
     }
 
     public static boolean isPossible() {
-        return getTV("") && LimelightHelpers.getTargetPose3d_CameraSpace("").getZ() >= MIN_DISTANCE
-                && LimelightHelpers.getTargetPose3d_CameraSpace("").getZ() <= MAX_DISTANCE;
+        return getTV("") && LimelightHelpers.getTargetPose3d_RobotSpace("").getZ() >= MIN_DISTANCE
+                && LimelightHelpers.getTargetPose3d_RobotSpace("").getZ() <= MAX_DISTANCE;
     }
 
     public static double getTX(String limelightName) {

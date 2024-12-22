@@ -4,7 +4,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.DriveSubsystem;
@@ -19,7 +18,6 @@ public class Robot extends TimedRobot{
     // Robot başlatma fonksiyonu, robot başlatıldığında çağrılır
     m_robotContainer = new RobotContainer();
     DriveSubsystem.resetToAbsolute();
-    SmartDashboard.putNumber("Manual Shooter Angles", 0);
   }
 
   @Override
@@ -28,11 +26,6 @@ public class Robot extends TimedRobot{
     CommandScheduler.getInstance().run();
 
     if (DriverStation.isAutonomousEnabled()) {
-      LimelightHelpers.setLEDMode_ForceOff("");
-      return;
-    }
-
-    if (SmartDashboard.getNumber("Manual Shooter Angles", 0) > 0) {
       LimelightHelpers.setLEDMode_ForceOff("");
       return;
     }

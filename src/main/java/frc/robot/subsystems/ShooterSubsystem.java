@@ -35,7 +35,6 @@ public class ShooterSubsystem extends SubsystemBase {
     private double angleTolerance = 0.20; // Açı toleransı
 
     public double goalAngle = 0; // Hedef açı
-    public double ovverideAngle = 0; // Geçersiz kılma açısı
 
     public ShooterSubsystem() {
         shooterMotorUpper.restoreFactoryDefaults(); // Üst motoru fabrika ayarlarına sıfırlama
@@ -81,8 +80,6 @@ public class ShooterSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        goalAngle = ovverideAngle < 0 ? ovverideAngle : LimelightHelpers.calculateShootingAngle(); // Hedef açıyı hesaplama
-
         SmartDashboard.putNumber("Upper Shooter RPM", shooterMotorUpper.getEncoder().getVelocity()); // Üst motor RPM değerini SmartDashboard'a yazdırma
         SmartDashboard.putNumber("Lower Shooter RPM", shooterMotorLower.getEncoder().getVelocity()); // Alt motor RPM değerini SmartDashboard'a yazdırma
         SmartDashboard.putNumber("Shooter Position", shooterMotorHinge.getEncoder().getPosition()); // Menteşe pozisyonunu SmartDashboard'a yazdırma
@@ -116,6 +113,12 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public Command setShooterAngle() {
+        goalAngle = LimelightHelpers.calculateShootingAngle();
+        return Commands.run(() -> setShooterAngleLocal()); // Atıcı açısını ayarlama komutu
+    }
+
+    public Command setAmpAngle(int angle) {
+        goalAngle = angle;
         return Commands.run(() -> setShooterAngleLocal()); // Atıcı açısını ayarlama komutu
     }
 
@@ -125,10 +128,6 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public Command resetShooterPosition() {
         return Commands.run(() -> shooterMotorHinge.getEncoder().setPosition(0)); // Menteşe pozisyonunu sıfırlama komutu
-    }
-
-    public Command setOvverideAngle(double angle) {
-        return Commands.runOnce(() -> ovverideAngle = angle); // Geçersiz kılma açısını ayarlama komutu
     }
 
     public void setShooterAngleLocal() {

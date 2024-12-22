@@ -15,6 +15,7 @@ import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -60,10 +61,6 @@ public class RobotContainer {
                 slowSpeedEnabled),
             m_robotDrive));
 
-    // ShooterSubsystem için varsayılan komutu ayarla
-    m_ShooterSubsystem
-        .setDefaultCommand(new RunCommand(() -> m_ShooterSubsystem.setShooterAngleLocal(), m_ShooterSubsystem));
-
     // Düğme bağlamalarını yapılandır
     configureButtonBindings();
     // PathPlanner'ı yapılandır
@@ -74,7 +71,7 @@ public class RobotContainer {
   private void configurePathPlanner() {
     // NamedCommands kullanarak komutları kayıt et
     NamedCommands.registerCommand("IntakeInit", intakeGrabNote());
-    NamedCommands.registerCommand("ShootNote", new SequentialCommandGroup(automaticShootNote(), new WaitCommand(0.4), m_ShooterSubsystem.stopShooterMotors()));
+    NamedCommands.registerCommand("ShootNote", new SequentialCommandGroup(automaticShootNote(), new WaitCommand(0.25), m_ShooterSubsystem.stopShooterMotors()));
     // Otomatik komut seçici yapılandır
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData(autoChooser);
@@ -87,7 +84,7 @@ public class RobotContainer {
 
     // Nota tutma komutu
     driverController.b().whileTrue(
-        intakeGrabNote()).onFalse(stopIntake().alongWith(resetRumble()).alongWith(m_FeederSubsystem.stopFeeder()).alongWith(m_ShooterSubsystem.setOvverideAngle(0)));
+        intakeGrabNote()).onFalse(stopIntake().alongWith(resetRumble()).alongWith(m_FeederSubsystem.stopFeeder()));
 
     // Açıyı ayarla ve atış yap
     driverController.rightTrigger().whileTrue(automaticShootNote())
@@ -132,23 +129,25 @@ public class RobotContainer {
   // Nota tutma komutu
   private Command intakeGrabNote() {
     return new ParallelDeadlineGroup(new WaitUntilCommand(() -> m_IntakeSubsystem.hasNote()),
-    m_ShooterSubsystem.setOvverideAngle(-25), new WaitUntilCommand(() -> m_ShooterSubsystem.shooterHingeAtGoal()),
-        m_IntakeSubsystem.setIntakeSpeed(0.45).alongWith(m_FeederSubsystem.setFeederSpeed(0.35)))
+      m_IntakeSubsystem.setIntakeSpeed(0.45).alongWith(m_FeederSubsystem.setFeederSpeed(0.35)))
         .andThen(stopIntake().alongWith(m_FeederSubsystem.stopFeeder()))
         .andThen(new InstantCommand(() -> driverController.getHID().setRumble(RumbleType.kBothRumble, 0.5)))
         .andThen(new WaitCommand(0.5))
-        .andThen(resetRumble())
-        .andThen(m_ShooterSubsystem.setOvverideAngle(0));
+        .andThen(resetRumble());
   }
 
   // Atıcıyı sıfırlama komutu
   private Command resetShooter() {
-    return stopShooter().alongWith(m_ShooterSubsystem.setOvverideAngle(0)).alongWith(stopIntake());
+    return stopShooter().alongWith(stopIntake()).alongWith(resetShooterAngle());
   }
 
   // Alma sistemini durdurma komutu
   private Command stopIntake() {
     return m_IntakeSubsystem.stopIntake();
+  }
+
+  private Command resetShooterAngle() {
+    return Commands.runOnce(() -> m_ShooterSubsystem.goalAngle = 0);
   }
 
   // Titreşimi sıfırlama komutu
@@ -168,7 +167,7 @@ public class RobotContainer {
 
   // Ampul atışı komutu
   private Command shootAmp() {
-    return new SequentialCommandGroup(m_ShooterSubsystem.setOvverideAngle(-95), new WaitUntilCommand(() -> m_ShooterSubsystem.shooterHingeAtGoal()), m_ShooterSubsystem.setShooterRPM(1100), new WaitUntilCommand(() -> m_ShooterSubsystem.shooterAtGoalRPM(1100)), m_FeederSubsystem.setFeederSpeed(1));
+    return new SequentialCommandGroup(m_ShooterSubsystem.setAmpAngle(-95), new WaitUntilCommand(() -> m_ShooterSubsystem.shooterHingeAtGoal()), m_ShooterSubsystem.setShooterRPM(1100), new WaitUntilCommand(() -> m_ShooterSubsystem.shooterAtGoalRPM(1100)), m_FeederSubsystem.setFeederSpeed(1));
   }
 
   // Otomatik nota atışı komutu

@@ -31,7 +31,6 @@ public class SwerveModule {
 
   private SwerveModuleState m_desiredState = new SwerveModuleState(0.0, new Rotation2d()); // İstenen durum
 
-  @SuppressWarnings("deprecation")
   public SwerveModule(int drivingCANId, int turningCANId, int cancoderID, boolean drivingMotorReversed,
       boolean turningMotorReversed, double encoderOffset, boolean encoderInverted, double chassisAngularOffset) {
 
@@ -98,7 +97,6 @@ public class SwerveModule {
     return m_drivingMotor.getPosition().getValueAsDouble() * ModuleConstants.kDrivingEncoderPositionFactor; // Motor pozisyonunu alma
   }
 
-  @SuppressWarnings("deprecation")
   public void updateSmartDashboard() {
     SmartDashboard.putNumber("Cancoder_" + m_canEncoder.getDeviceID(), getCanCoder().getDegrees()); // SmartDashboard'a CAN enkoder verilerini yazdırma
     SmartDashboard.putNumber("Turning Angle" + m_canEncoder.getDeviceID(),
@@ -135,7 +133,6 @@ public class SwerveModule {
     m_drivingMotor.setPosition(0); // Enkoderleri sıfırla
   }
 
-  @SuppressWarnings("deprecation")
   public Rotation2d getCanCoder() {
     return Rotation2d.fromDegrees((m_canEncoder.getAbsolutePosition())); // CAN enkoder pozisyonunu döndür
   }

@@ -543,8 +543,8 @@ public class LimelightHelpers {
 
     // Sabitler fonksiyon dışında tanımlanır
     public final static double MIN_DISTANCE = 1.5;
-    public final static double MAX_DISTANCE = 2.5;
-    final static double MIN_ANGLE = -41.5;
+    public final static double MAX_DISTANCE = 3;
+    final static double MIN_ANGLE = -56;
     final static double MAX_ANGLE = -34;
 
     // Verilen mesafe için gereken atış açısını hesaplayan fonksiyon

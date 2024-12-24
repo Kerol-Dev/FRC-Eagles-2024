@@ -15,7 +15,7 @@ public class RotateToTarget extends Command {
   public RotateToTarget(DriveSubsystem dt) {
     drivetrain = dt; // Sürüş sistemini başlatma
 
-    pidRotation = new PIDController(0.01, 0, 0); // PID kontrolcüsünü başlatma
+    pidRotation = new PIDController(0.007, 0, 0); // PID kontrolcüsünü başlatma
     pidRotation.setTolerance(1); // PID toleransını ayarlama
 
     addRequirements(dt); // Gereksinimleri ekleme

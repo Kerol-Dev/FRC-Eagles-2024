@@ -25,7 +25,7 @@ public class FeederSubsystem extends SubsystemBase {
         return Commands.runOnce(() -> setSpeeds(speed)); // Besleyici hızını ayarlama komutu
     }
 
-    private void setSpeeds(double speed) {
+    public void setSpeeds(double speed) {
         feederMotor.set(-speed); // Besleyici motoru hızını ayarlama
         feederMotor2.set(speed); // İkinci besleyici motoru hızını ayarlama
     }

@@ -8,6 +8,7 @@ import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.OpenLoopRampsConfigs;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkLowLevel.MotorType;
@@ -42,15 +43,13 @@ public class SwerveModule {
 
     m_drivingMotor = new TalonFX(drivingCANId); // Sürüş motorunu başlatma
     m_drivingMotor.setInverted(drivingMotorReversed); // Sürüş motoru yönünü ayarlama
+    m_drivingMotor.setNeutralMode(NeutralModeValue.Brake);
     CurrentLimitsConfigs cl = new CurrentLimitsConfigs();
     cl.SupplyCurrentLimitEnable = true;
     cl.StatorCurrentLimitEnable = true;
-    cl.SupplyCurrentLimit = 80;
-    cl.StatorCurrentLimit = 60;
-    OpenLoopRampsConfigs rp = new OpenLoopRampsConfigs();
-    rp.DutyCycleOpenLoopRampPeriod = 0.5;
+    cl.SupplyCurrentLimit = 100;
+    cl.StatorCurrentLimit = 80;
     m_drivingMotor.getConfigurator().apply(cl);
-    m_drivingMotor.getConfigurator().apply(rp);
     m_turningSparkMax = new CANSparkMax(turningCANId, MotorType.kBrushless); // Dönüş motorunu başlatma
 
     m_canEncoder = new CANCoder(cancoderID); // CAN enkoderi başlatma

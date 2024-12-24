@@ -7,8 +7,8 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 public final class Constants {
   public static final class DriveConstants {
 
-    public static final double kMaxSpeedMetersPerSecond = 4.8; // Maksimum hız (m/s)
-    public static final double kMaxAcceleration = 1; // Maksimum ivme
+    public static final double kMaxSpeedMetersPerSecond = 3.5; // Maksimum hız (m/s)
+    public static final double kMaxAcceleration = 2; // Maksimum ivme
     public static final double kMaxAngularSpeed = 2 * Math.PI; // Maksimum açısal hız
     public static final double kMaxAngularAcceleration = 2; // Maksimum açısal ivme
 
@@ -22,10 +22,10 @@ public final class Constants {
         new Translation2d(-kWheelBase / 2, -kTrackWidth / 2),
         new Translation2d(-kWheelBase / 2, kTrackWidth / 2));
 
-    public static final double kFrontLeftChassisAngularOffset = Math.PI / 4; // Ön sol şasi açısal ofseti
+    public static final double kFrontLeftChassisAngularOffset = 0; // Ön sol şasi açısal ofseti
     public static final double kFrontRightChassisAngularOffset = 0; // Ön sağ şasi açısal ofseti
-    public static final double kRearLeftChassisAngularOffset = -Math.PI / 4; // Arka sol şasi açısal ofseti
-    public static final double kRearRightChassisAngularOffset = -Math.PI / 4; // Arka sağ şasi açısal ofseti
+    public static final double kRearLeftChassisAngularOffset = 0; // Arka sol şasi açısal ofseti
+    public static final double kRearRightChassisAngularOffset = 0; // Arka sağ şasi açısal ofseti
 
     // SPARK MAX CAN kimlikleri
     public static final int kFrontLeftDrivingCanId = 1; // Ön sol sürüş motoru CAN kimliği
@@ -43,10 +43,10 @@ public final class Constants {
     public static final int kRearLeftcanCoderIDCanId = 21; // Arka sol canCoder ID CAN kimliği
     public static final int kRearRightcanCoderIDCanId = 17; // Arka sağ canCoder ID CAN kimliği
 
-    public static final float kFrontLeftcanCoderOffset = 179.3f; // Ön sol canCoder ofseti
-    public static final float kFrontRightcanCoderOffset = 0; // Ön sağ canCoder ofseti
-    public static final float kRearLeftcanCoderOffset = 20f; // Arka sol canCoder ofseti
-    public static final float kRearRightcanCoderOffset = 47.0f; // Arka sağ canCoder ofseti
+    public static final float kFrontLeftcanCoderOffset = 224.5f; // Ön sol canCoder ofseti
+    public static final float kFrontRightcanCoderOffset = 181.84f; // Ön sağ canCoder ofseti
+    public static final float kRearLeftcanCoderOffset = 158.2f; // Arka sol canCoder ofseti
+    public static final float kRearRightcanCoderOffset = 6f; // Arka sağ canCoder ofseti
 
     public static final boolean kGyroReversed = false; // Gyro yönü ters mi
     public static final double kGyroOffset = 0.0; // Gyro ofseti
@@ -56,11 +56,11 @@ public final class Constants {
 
     public static final boolean kTurningEncoderInverted = true; // Dönüş enkoderi ters mi
 
-    public static final double kWheelDiameterMeters = 0.1; // Tekerlek çapı (metre)
+    public static final double kWheelDiameterMeters = 0.103; // Tekerlek çapı (metre)
     public static final double kWheelCircumferenceMeters = kWheelDiameterMeters * Math.PI; // Tekerlek çevresi (metre)
 
     public static final double kDrivingMotorReduction = 6.5; // Sürüş motoru dişli oranı
-    public static final double kTurningMotorReduction = 10.0446; // Dönüş motoru dişli oranı
+    public static final double kTurningMotorReduction = 9.8736; // Dönüş motoru dişli oranı
 
     public static final double kDrivingEncoderPositionFactor = ((kWheelDiameterMeters * Math.PI)
         / kDrivingMotorReduction); // Sürüş enkoderi pozisyon faktörü (metre)

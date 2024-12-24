@@ -1,7 +1,6 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -42,12 +41,6 @@ public class Robot extends TimedRobot{
   }
 
   @Override
-  public void disabledInit() {
-    // Robot devre dışı bırakıldığında çağrılır
-    m_robotContainer.m_ClimbSubsystem.climbMotor.getEncoder().setPosition(Preferences.getDouble("ClimbPos", 0));
-  }
-
-  @Override
   public void autonomousInit() {
     // Otonom mod başlatıldığında çağrılır
     DriveSubsystem.resetEncoders();
@@ -73,12 +66,6 @@ public class Robot extends TimedRobot{
     }
 
     m_robotContainer.m_ShooterSubsystem.stopShooterMotorsLocal();
-  }
-
-  @Override
-  public void teleopExit() {
-    // Teleop mod sona erdiğinde çağrılır
-    Preferences.setDouble("ClimbPos", m_robotContainer.m_ClimbSubsystem.climbMotor.getEncoder().getPosition());
   }
 
   @Override

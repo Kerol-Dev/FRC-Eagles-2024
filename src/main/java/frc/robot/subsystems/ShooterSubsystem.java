@@ -26,10 +26,10 @@ public class ShooterSubsystem extends SubsystemBase {
     private double velocityKi = 0; // Hız PID I parametresi
     private double velocityKd = 0; // Hız PID D parametresi
 
-    private double positionKp = 0.2; // Pozisyon PID P parametresi
+    private double positionKp = 0.25; // Pozisyon PID P parametresi
     private double positionKi = 0; // Pozisyon PID I parametresi
     private double positionKd = 0; // Pozisyon PID D parametresi
-    private double positionMaxOutput = 0.3; // Pozisyon maksimum çıkış
+    private double positionMaxOutput = 0.6; // Pozisyon maksimum çıkış
 
     private int RPMTolerance = 250; // RPM toleransı
     private double angleTolerance = 0.20; // Açı toleransı
@@ -74,7 +74,7 @@ public class ShooterSubsystem extends SubsystemBase {
         shooterMotorHinge.enableSoftLimit(SoftLimitDirection.kReverse, true); // Geri yumuşak limiti etkinleştirme
 
         shooterMotorHinge.setSoftLimit(SoftLimitDirection.kForward, 0); // İleri yumuşak limit değerini ayarlama
-        shooterMotorHinge.setSoftLimit(SoftLimitDirection.kReverse, -95); // Geri yumuşak limit değerini ayarlama
+        shooterMotorHinge.setSoftLimit(SoftLimitDirection.kReverse, -141); // Geri yumuşak limit değerini ayarlama
         shooterMotorHingePID.setReference(-35, ControlType.kPosition); // Menteşe pozisyonunu ayarlama
     }
 
@@ -84,13 +84,9 @@ public class ShooterSubsystem extends SubsystemBase {
         goalAngle = -4;
 
         SmartDashboard.putNumber("Target Angle", goalAngle);
+        SmartDashboard.putNumber("Shooter RPM", shooterMotorLower.getEncoder().getVelocity());
 
         SmartDashboard.putNumber("Shooter Position", shooterMotorHinge.getEncoder().getPosition()); // Menteşe pozisyonunu SmartDashboard'a yazdırma
-    }
-
-    public Command resetAngle()
-    {
-        return Commands.runOnce(() -> shooterMotorHinge.getEncoder().setPosition(-4));
     }
 
     public double getShooterRPM(boolean upper) {
@@ -109,7 +105,7 @@ public class ShooterSubsystem extends SubsystemBase {
         return Commands.runOnce(() -> setShooterRPMLocal(goalRPM)); // Motor RPM değerini ayarlama komutu
     }
 
-    private void setShooterRPMLocal(double goalRPM) {
+    public void setShooterRPMLocal(double goalRPM) {
         if (goalRPM == 0) {
             stopShooterMotorsLocal(); // Motorları durdur
             return;
@@ -124,8 +120,9 @@ public class ShooterSubsystem extends SubsystemBase {
         return Commands.run(() -> setShooterAngleLocal()).alongWith(Commands.runOnce(() -> goalAngle = LimelightHelpers.calculateShootingAngle())); // Atıcı açısını ayarlama komutu
     }
 
-    public Command setAmpAngle(int angle) {
-        return Commands.run(() -> setShooterAngleLocal()).alongWith(Commands.runOnce(() -> goalAngle = angle)); // Atıcı açısını ayarlama komutu
+    public void setAmpAngle(int angle) {
+         goalAngle = angle; // Atıcı açısını ayarlama komutu
+        setShooterAngleLocal();
     }
 
     public Command stopShooterHinge() {

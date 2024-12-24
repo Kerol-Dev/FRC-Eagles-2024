@@ -9,6 +9,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.DriveConstants;
@@ -35,7 +36,7 @@ public class DriveSubsystem extends SubsystemBase {
       DriveConstants.kFrontRightDrivingCanId, // Ön sağ sürüş CAN ID
       DriveConstants.kFrontRightTurningCanId, // Ön sağ dönüş CAN ID
       DriveConstants.kFrontRightcanCoderIDCanId, // Ön sağ canCoder ID
-      false, // Ters
+      true, // Ters
       true, // Encoder ters
       DriveConstants.kFrontRightcanCoderOffset, // Ön sağ canCoder ofseti
       false, // Fren modu
@@ -45,7 +46,7 @@ public class DriveSubsystem extends SubsystemBase {
       DriveConstants.kRearLeftDrivingCanId, // Arka sol sürüş CAN ID
       DriveConstants.kRearLeftTurningCanId, // Arka sol dönüş CAN ID
       DriveConstants.kRearLeftcanCoderIDCanId, // Arka sol canCoder ID
-      false, // Ters
+      true, // Ters
       true, // Encoder ters
       DriveConstants.kRearLeftcanCoderOffset, // Arka sol canCoder ofseti
       false, // Fren modu
@@ -109,6 +110,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+    m_gyro.setAngleAdjustment(DriverStation.getAlliance().get() == Alliance.Red ? 0 : 180);
     // Periodik olarak odometriyi güncelle
     m_rearLeft.updateSmartDashboard(); // Arka sol modül bilgilerini güncelle
     m_rearRight.updateSmartDashboard(); // Arka sağ modül bilgilerini güncelle
@@ -160,7 +162,7 @@ public class DriveSubsystem extends SubsystemBase {
 
     var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
         robotCentric
-            ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered, getHeading())
+            ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered, getHeading().plus(Rotation2d.fromDegrees(DriverStation.getAlliance().get() == Alliance.Blue ? 0 : 180)))
             : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
     setModuleStates(swerveModuleStates); // Modül durumlarını ayarla
   }

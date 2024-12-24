@@ -20,12 +20,12 @@
         "y": 4.108739143695902
       },
       "prevControl": {
-        "x": 2.008059398955107,
-        "y": 3.5930613743978146
+        "x": 1.4896821805055864,
+        "y": 3.72404602155852
       },
       "nextControl": {
-        "x": 2.903614458003184,
-        "y": 4.112377325798476
+        "x": 2.90433645914606,
+        "y": 4.1106510541530135
       },
       "isLocked": false,
       "linkedName": null
@@ -63,11 +63,28 @@
           ]
         }
       }
+    },
+    {
+      "name": "Shooter",
+      "waypointRelativePos": 1.25,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "InitShooter"
+              }
+            }
+          ]
+        }
+      }
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 2.0,
-    "maxAcceleration": 1.6,
+    "maxVelocity": 3.0,
+    "maxAcceleration": 2.5,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },

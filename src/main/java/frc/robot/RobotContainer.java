@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Commands.RotateToTarget;
 import frc.robot.Constants.OIConstants;
-import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -37,7 +36,6 @@ public class RobotContainer {
 
   // Alt sistemlerin tanımları
   public final DriveSubsystem m_robotDrive = new DriveSubsystem();
-  public final ClimbSubsystem m_ClimbSubsystem = new ClimbSubsystem();
   public final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem();
   public final FeederSubsystem m_FeederSubsystem = new FeederSubsystem();
   public final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem();
@@ -61,8 +59,9 @@ public class RobotContainer {
                 true,
                 slowSpeedEnabled),
             m_robotDrive));
-    
-    m_ShooterSubsystem.setDefaultCommand(new RunCommand(() -> m_ShooterSubsystem.setShooterAngleLocal(), m_ShooterSubsystem));
+
+    m_ShooterSubsystem
+        .setDefaultCommand(new RunCommand(() -> m_ShooterSubsystem.setShooterAngleLocal(), m_ShooterSubsystem));
 
     // Düğme bağlamalarını yapılandır
     configureButtonBindings();
@@ -70,11 +69,13 @@ public class RobotContainer {
     configurePathPlanner();
   }
 
-  // PathPlanner'ı yapılandırma fonksiyonu
+  // PathPlanner'ı yapılandırma fonksiyonux"
   private void configurePathPlanner() {
     // NamedCommands kullanarak komutları kayıt et
-    NamedCommands.registerCommand("IntakeInit", intakeGrabNote().andThen(m_ShooterSubsystem.resetAngle()));
-    NamedCommands.registerCommand("ShootNote", new ConditionalCommand(automaticShootNote().andThen(resetShooter()), new WaitCommand(1.5), m_IntakeSubsystem::hasNote));
+    NamedCommands.registerCommand("IntakeInit", intakeGrabNote());
+    NamedCommands.registerCommand("InitShooter", Commands.runOnce(() -> m_ShooterSubsystem.setShooterRPMLocal(5500), m_ShooterSubsystem));
+    NamedCommands.registerCommand("ShootNote", new ConditionalCommand(automaticShootNote().andThen(Commands.waitSeconds(0.3)).andThen(resetShooterAuto()),
+        new WaitCommand(0.1), m_IntakeSubsystem::hasNote));
     // Otomatik komut seçici yapılandır
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData(autoChooser);
@@ -85,41 +86,22 @@ public class RobotContainer {
     // Başlığı sıfırlama
     driverController.start().onTrue(new InstantCommand(() -> m_robotDrive.zeroHeading()));
 
-    driverController.x().whileTrue(m_ShooterSubsystem.resetAngle());
     // Nota tutma komutu
     driverController.b().whileTrue(
-        resetShooter().andThen(intakeGrabNote())).onFalse(stopIntake().alongWith(resetRumble()).alongWith(m_FeederSubsystem.stopFeeder()));
+        resetShooter().andThen(intakeGrabNote()))
+        .onFalse(stopIntake().alongWith(resetRumble()).alongWith(m_FeederSubsystem.stopFeeder()));
 
     // Açıyı ayarla ve atış yap
     driverController.rightTrigger().whileTrue(automaticShootNote())
         .onFalse(resetShooter().alongWith(m_FeederSubsystem.stopFeeder()));
 
     // Sağ tampon düğmesi ile ampul atışı yap
-    driverController.rightBumper().whileTrue(shootAmp()).onFalse(resetShooter().alongWith(m_FeederSubsystem.stopFeeder()));
+    driverController.rightBumper().whileTrue(shootAmp())
+        .onFalse(resetShooter().alongWith(m_FeederSubsystem.stopFeeder()));
 
     // Hedefe dönme komutu
     driverController.leftTrigger().whileTrue(new RotateToTarget(m_robotDrive))
         .onFalse(new InstantCommand(() -> m_robotDrive.drive(0, 0, 0, true, false)));
-
-    // Tırmanıcıyı etkinleştir
-    operatorController.povUp().onTrue(enableClimber());
-
-    // Tırmanıcıyı devre dışı bırak
-    operatorController.povDown().onFalse(disableClimber());
-
-    // Açıyı manuel ayarla (Test için)
-    operatorController.start().onTrue(m_ClimbSubsystem.goToZeroPosition());
-
-    // Tırmanıcı hızı ayarlamaları
-    operatorController.leftBumper().whileTrue(m_ClimbSubsystem.setClimbSpeed(0.2))
-        .onFalse(m_ClimbSubsystem.stopClimber());
-    operatorController.leftTrigger().whileTrue(m_ClimbSubsystem.setClimbSpeed(-0.2))
-        .onFalse(m_ClimbSubsystem.stopClimber());
-
-    operatorController.rightBumper().whileTrue(m_ClimbSubsystem.setClimbSpeed(0.8))
-        .onFalse(m_ClimbSubsystem.stopClimber());
-    operatorController.rightTrigger().whileTrue(m_ClimbSubsystem.setClimbSpeed(-0.8))
-        .onFalse(m_ClimbSubsystem.stopClimber());
 
     // Otomatik fırlatma komutu
     driverController.a().whileTrue(ejectShoot())
@@ -133,16 +115,20 @@ public class RobotContainer {
   // Nota tutma komutu
   private Command intakeGrabNote() {
     return new ParallelDeadlineGroup(new WaitUntilCommand(() -> m_IntakeSubsystem.hasNote()),
-      m_IntakeSubsystem.setIntakeSpeed(0.45).alongWith(m_FeederSubsystem.setFeederSpeed(0.35)))
+        m_IntakeSubsystem.setIntakeSpeed(0.45).alongWith(m_FeederSubsystem.setFeederSpeed(0.35)))
         .andThen(stopIntake().alongWith(m_FeederSubsystem.stopFeeder()))
-        .andThen(new InstantCommand(() -> driverController.getHID().setRumble(RumbleType.kBothRumble, 0.5)))
-        .andThen(new WaitCommand(0.5))
+        .andThen(new InstantCommand(() -> driverController.getHID().setRumble(RumbleType.kBothRumble, 1)))
+        .andThen(new WaitCommand(1))
         .andThen(resetRumble());
   }
 
   // Atıcıyı sıfırlama komutu
   private Command resetShooter() {
     return stopShooter().alongWith(stopIntake()).alongWith(resetShooterAngle());
+  }
+
+  private Command resetShooterAuto() {
+    return stopShooter().alongWith(stopIntake()).alongWith(resetShooterAngleAuto());
   }
 
   // Alma sistemini durdurma komutu
@@ -152,6 +138,10 @@ public class RobotContainer {
 
   private Command resetShooterAngle() {
     return Commands.runOnce(() -> m_ShooterSubsystem.goalAngle = 0);
+  }
+
+    private Command resetShooterAngleAuto() {
+    return Commands.runOnce(() -> m_ShooterSubsystem.goalAngle = -25).andThen(Commands.runOnce(() -> m_ShooterSubsystem.setShooterAngleLocal()));
   }
 
   // Titreşimi sıfırlama komutu
@@ -171,15 +161,21 @@ public class RobotContainer {
 
   // Ampul atışı komutu
   private Command shootAmp() {
-    return new SequentialCommandGroup(m_ShooterSubsystem.setAmpAngle(-95), new WaitUntilCommand(() -> m_ShooterSubsystem.shooterHingeAtGoal()), m_ShooterSubsystem.setShooterRPM(1100), new WaitUntilCommand(() -> m_ShooterSubsystem.shooterAtGoalRPM(1100)), m_FeederSubsystem.setFeederSpeed(1));
+    return Commands.runOnce(() -> m_ShooterSubsystem.setAmpAngle(-140), m_ShooterSubsystem)
+        .andThen(Commands.waitUntil(() -> m_ShooterSubsystem.shooterHingeAtGoal()))
+        .andThen(Commands.runOnce(() -> m_ShooterSubsystem.setAmpAngle(-134), m_ShooterSubsystem))
+        .andThen(Commands.waitUntil(() -> m_ShooterSubsystem.shooterHingeAtGoal()))
+        .andThen(Commands.runOnce(() -> m_ShooterSubsystem.setShooterRPMLocal(1480), m_ShooterSubsystem))
+        .andThen(Commands.waitSeconds(1.5))
+        .andThen(Commands.runOnce(() -> m_FeederSubsystem.setSpeeds(1), m_FeederSubsystem));
   }
 
   // Otomatik nota atışı komutu
   private Command automaticShootNote() {
-      return new ParallelDeadlineGroup(checkPossibility(), new RotateToTarget(m_robotDrive),
-          m_ShooterSubsystem.setShooterRPM(5500).alongWith(m_ShooterSubsystem.setShooterAngle())
+    return new ParallelDeadlineGroup(checkPossibility(), new RotateToTarget(m_robotDrive),
+        m_ShooterSubsystem.setShooterRPM(5500).alongWith(m_ShooterSubsystem.setShooterAngle())
             .alongWith(new WaitUntilCommand(
-                () -> m_ShooterSubsystem.shooterAtGoalRPM(5500) && m_ShooterSubsystem.shooterHingeAtGoal())
+                () -> m_ShooterSubsystem.shooterAtGoalRPM(5000) && m_ShooterSubsystem.shooterHingeAtGoal())
                 .andThen(new WaitCommand(0.3)).andThen(m_FeederSubsystem.setFeederSpeed(1))));
   }
 
@@ -199,16 +195,6 @@ public class RobotContainer {
   private Command stopShooter() {
     return m_ShooterSubsystem.stopShooterMotors()
         .alongWith(resetRumble());
-  }
-
-  // Tırmanıcıyı etkinleştirme komutu
-  private Command enableClimber() {
-    return m_ClimbSubsystem.setClimbPosition(true);
-  }
-
-  // Tırmanıcıyı devre dışı bırakma komutu
-  private Command disableClimber() {
-    return m_ClimbSubsystem.setClimbPosition(false);
   }
 
   // Otonom komutu getirme fonksiyonu

@@ -15,8 +15,8 @@ public class RotateToTarget extends Command {
   public RotateToTarget(DriveSubsystem dt) {
     drivetrain = dt; // Sürüş sistemini başlatma
 
-    pidRotation = new PIDController(0.007, 0, 0); // PID kontrolcüsünü başlatma
-    pidRotation.setTolerance(1); // PID toleransını ayarlama
+    pidRotation = new PIDController(0.015, 0, 0); // PID kontrolcüsünü başlatma
+    pidRotation.setTolerance(2); // PID toleransını ayarlama
 
     addRequirements(dt); // Gereksinimleri ekleme
   }
@@ -26,8 +26,8 @@ public class RotateToTarget extends Command {
     if (!LimelightHelpers.getTV("")) {
       RobotContainer.driverController.getHID().setRumble(RumbleType.kBothRumble, 0.5); // Limelight TV sinyali yoksa kumandayı titreştir
     }
-
     double rotation = pidRotation.calculate(LimelightHelpers.getTX(""), 0); // PID kontrolcüsü ile dönüş hesaplama
+
     drivetrain.drive(0, 0, rotation, false, false); // Sürüş sistemini döndürme
 
     if (pidRotation.atSetpoint()) {

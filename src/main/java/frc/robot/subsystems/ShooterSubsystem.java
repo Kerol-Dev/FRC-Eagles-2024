@@ -117,7 +117,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public Command setShooterAngle() {
-        return Commands.run(() -> setShooterAngleLocal()).alongWith(Commands.runOnce(() -> goalAngle = LimelightHelpers.calculateShootingAngle())); // Atıcı açısını ayarlama komutu
+        return Commands.run(() -> setShooterAngleLocal()).beforeStarting(Commands.runOnce(() -> goalAngle = LimelightHelpers.calculateShootingAngle())); // Atıcı açısını ayarlama komutu
     }
 
     public void setAmpAngle(int angle) {

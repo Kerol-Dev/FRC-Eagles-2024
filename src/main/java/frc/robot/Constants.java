@@ -7,10 +7,10 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 public final class Constants {
   public static final class DriveConstants {
 
-    public static final double kMaxSpeedMetersPerSecond = 3.5; // Maksimum hız (m/s)
-    public static final double kMaxAcceleration = 2; // Maksimum ivme
-    public static final double kMaxAngularSpeed = 2 * Math.PI; // Maksimum açısal hız
-    public static final double kMaxAngularAcceleration = 2; // Maksimum açısal ivme
+    public static final double kMaxSpeedMetersPerSecond = 3; // Maksimum hız (m/s)
+    public static final double kMaxAcceleration = 3; // Maksimum ivme
+    public static final double kMaxAngularSpeed = 1 * Math.PI; // Maksimum açısal hız
+    public static final double kMaxAngularAcceleration = 3; // Maksimum açısal ivme
 
     // Şasi konfigürasyonu
     public static final double kTrackWidth = 0.679; // Sağ ve sol tekerlekler arasındaki mesafe
@@ -43,10 +43,10 @@ public final class Constants {
     public static final int kRearLeftcanCoderIDCanId = 21; // Arka sol canCoder ID CAN kimliği
     public static final int kRearRightcanCoderIDCanId = 17; // Arka sağ canCoder ID CAN kimliği
 
-    public static final float kFrontLeftcanCoderOffset = 224.5f; // Ön sol canCoder ofseti
-    public static final float kFrontRightcanCoderOffset = 181.84f; // Ön sağ canCoder ofseti
-    public static final float kRearLeftcanCoderOffset = 158.2f; // Arka sol canCoder ofseti
-    public static final float kRearRightcanCoderOffset = 6f; // Arka sağ canCoder ofseti
+    public static final float kFrontLeftcanCoderOffset = 226.0f; // Ön sol canCoder ofseti
+    public static final float kFrontRightcanCoderOffset = 183.6f; // Ön sağ canCoder ofseti
+    public static final float kRearLeftcanCoderOffset = 154.7f; // Arka sol canCoder ofseti
+    public static final float kRearRightcanCoderOffset = 358.5f; // Arka sağ canCoder ofseti
 
     public static final boolean kGyroReversed = false; // Gyro yönü ters mi
     public static final double kGyroOffset = 0.0; // Gyro ofseti

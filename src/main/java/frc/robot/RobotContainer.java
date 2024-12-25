@@ -20,7 +20,6 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -74,8 +73,8 @@ public class RobotContainer {
     // NamedCommands kullanarak komutları kayıt et
     NamedCommands.registerCommand("IntakeInit", intakeGrabNote());
     NamedCommands.registerCommand("InitShooter", Commands.runOnce(() -> m_ShooterSubsystem.setShooterRPMLocal(5500), m_ShooterSubsystem));
-    NamedCommands.registerCommand("ShootNote", new ConditionalCommand(automaticShootNote().andThen(Commands.waitSeconds(0.3)).andThen(resetShooterAuto()),
-        new WaitCommand(0.1), m_IntakeSubsystem::hasNote));
+    NamedCommands.registerCommand("ShootNote", new ConditionalCommand(automaticShootNote().andThen(Commands.waitSeconds(0.5)).andThen(resetShooterAuto()),
+        new WaitCommand(0.7), m_IntakeSubsystem::hasNote));
     // Otomatik komut seçici yapılandır
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData(autoChooser);
@@ -97,7 +96,7 @@ public class RobotContainer {
 
     // Sağ tampon düğmesi ile ampul atışı yap
     driverController.rightBumper().whileTrue(shootAmp())
-        .onFalse(resetShooter().alongWith(m_FeederSubsystem.stopFeeder()));
+        .onFalse(resetShooter().alongWith(m_FeederSubsystem.stopFeeder()).alongWith(m_IntakeSubsystem.stopIntake()));
 
     // Hedefe dönme komutu
     driverController.leftTrigger().whileTrue(new RotateToTarget(m_robotDrive))
@@ -161,28 +160,22 @@ public class RobotContainer {
 
   // Ampul atışı komutu
   private Command shootAmp() {
-    return Commands.runOnce(() -> m_ShooterSubsystem.setAmpAngle(-140), m_ShooterSubsystem)
+    return Commands.runOnce(() -> m_ShooterSubsystem.setAmpAngle(-141), m_ShooterSubsystem)
         .andThen(Commands.waitUntil(() -> m_ShooterSubsystem.shooterHingeAtGoal()))
         .andThen(Commands.runOnce(() -> m_ShooterSubsystem.setAmpAngle(-134), m_ShooterSubsystem))
         .andThen(Commands.waitUntil(() -> m_ShooterSubsystem.shooterHingeAtGoal()))
-        .andThen(Commands.runOnce(() -> m_ShooterSubsystem.setShooterRPMLocal(1480), m_ShooterSubsystem))
-        .andThen(Commands.waitSeconds(1.5))
+        .andThen(Commands.runOnce(() -> m_ShooterSubsystem.setShooterRPMLocal(1400), m_ShooterSubsystem))
+        .andThen(Commands.waitSeconds(0.8))
         .andThen(Commands.runOnce(() -> m_FeederSubsystem.setSpeeds(1), m_FeederSubsystem));
   }
 
   // Otomatik nota atışı komutu
   private Command automaticShootNote() {
-    return new ParallelDeadlineGroup(checkPossibility(), new RotateToTarget(m_robotDrive),
+    return new ParallelDeadlineGroup(checkPossibilityNoVision(),
         m_ShooterSubsystem.setShooterRPM(5500).alongWith(m_ShooterSubsystem.setShooterAngle())
             .alongWith(new WaitUntilCommand(
                 () -> m_ShooterSubsystem.shooterAtGoalRPM(5000) && m_ShooterSubsystem.shooterHingeAtGoal())
                 .andThen(new WaitCommand(0.3)).andThen(m_FeederSubsystem.setFeederSpeed(1))));
-  }
-
-  // Olasılığı kontrol etme komutu
-  private Command checkPossibility() {
-    return new WaitUntilCommand(() -> !m_IntakeSubsystem.hasNote())
-        .andThen(new InstantCommand(() -> driverController.getHID().setRumble(RumbleType.kBothRumble, 0.5)));
   }
 
   // Görüş olmadan olasılığı kontrol etme komutu

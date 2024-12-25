@@ -152,7 +152,7 @@ public class DriveSubsystem extends SubsystemBase {
       // Komut hızlarını sürüş sistemine doğru birimlere dönüştür
       xSpeedDelivered = m_magXLimiter.calculate(xSpeed * 0.3) * DriveConstants.kMaxSpeedMetersPerSecond;
       ySpeedDelivered = m_magYLimiter.calculate(ySpeed * 0.3) * DriveConstants.kMaxSpeedMetersPerSecond;
-      rotDelivered = m_rotLimiter.calculate(rot * 0.3) * DriveConstants.kMaxAngularSpeed;
+      rotDelivered = m_rotLimiter.calculate(rot * 0.5) * DriveConstants.kMaxAngularSpeed;
     } else {
       // Komut hızlarını sürüş sistemine doğru birimlere dönüştür
       xSpeedDelivered = m_magXLimiter.calculate(xSpeed) * DriveConstants.kMaxSpeedMetersPerSecond;

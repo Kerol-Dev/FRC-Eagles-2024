@@ -73,7 +73,7 @@ public class RobotContainer {
     // NamedCommands kullanarak komutları kayıt et
     NamedCommands.registerCommand("IntakeInit", intakeGrabNote());
     NamedCommands.registerCommand("InitShooter", Commands.runOnce(() -> m_ShooterSubsystem.setShooterRPMLocal(5500), m_ShooterSubsystem));
-    NamedCommands.registerCommand("ShootNote", new ConditionalCommand(automaticShootNote().andThen(Commands.waitSeconds(0.5)).andThen(resetShooterAuto()),
+    NamedCommands.registerCommand("ShootNote", new ConditionalCommand(new RotateToTarget(m_robotDrive).withTimeout(2).andThen(automaticShootNote()).andThen(Commands.waitSeconds(0.5)).andThen(resetShooterAuto()),
         new WaitCommand(0.7), m_IntakeSubsystem::hasNote));
     // Otomatik komut seçici yapılandır
     autoChooser = AutoBuilder.buildAutoChooser();

@@ -31,7 +31,12 @@ public class VisionSubsystem extends SubsystemBase {
   public void periodic() {
     LimelightHelpers.SetRobotOrientation("", swerve.getHeading().getDegrees(), 0, 0, 0, 0, 0); // Robot yönünü ayarla
 
-    SmartDashboard.putNumber("Z Mesage", LimelightHelpers.getTargetPose3d_RobotSpace("").getZ());
+    if(LimelightHelpers.getTV(""))
+    {
+      SmartDashboard.putNumber("Tag Distance", LimelightHelpers.getTargetPose3d_RobotSpace("").getZ());
+      SmartDashboard.putNumber("Tag Angle", LimelightHelpers.getTX(""));
+    }
+    
     poseEst.update(swerve.getHeading(), new SwerveModulePosition[] {
         DriveSubsystem.m_frontLeft.getPosition(),
         DriveSubsystem.m_frontRight.getPosition(),

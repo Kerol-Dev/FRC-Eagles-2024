@@ -27,7 +27,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putBoolean("Feeder Sensor", !feederSensor.get()); // Feeder sensörü durumunu SmartDashboard'a yazdırma
+        SmartDashboard.putBoolean("Has Note", !feederSensor.get()); // Feeder sensörü durumunu SmartDashboard'a yazdırma
     }
 
     public boolean hasNote() {
@@ -38,7 +38,7 @@ public class IntakeSubsystem extends SubsystemBase {
         return Commands.runOnce(() -> setSpeeds(speed)); // İç alım hızını ayarlama komutu
     }
 
-    private void setSpeeds(double speed) {
+    public void setSpeeds(double speed) {
         intakeMotor.set(speed); // İç alım motoru hızını ayarlama
         intakeMotor2.set(speed); // İkinci iç alım motoru hızını ayarlama
     }

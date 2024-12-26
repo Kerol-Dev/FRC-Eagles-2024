@@ -108,9 +108,8 @@ public class SwerveModule {
 
   public void updateSmartDashboard() {
     SmartDashboard.putNumber("Cancoder_" + m_canEncoder.getDeviceID(), getCanCoder().getDegrees()); // SmartDashboard'a CAN enkoder verilerini yazdırma
-    SmartDashboard.putNumber("Turning Angle" + m_canEncoder.getDeviceID(),
+    SmartDashboard.putNumber("NeoAngle_" + m_canEncoder.getDeviceID(),
         Math.toDegrees((Math.abs(m_turningEncoder.getPosition()) % (2.0 * Math.PI)))); // SmartDashboard'a dönüş açısını yazdırma
-    SmartDashboard.putNumber("Driving Distance" + m_canEncoder.getDeviceID(), getMotorPosition()); // SmartDashboard'a sürüş mesafesini yazdırma
   }
 
   public void setDesiredState(SwerveModuleState desiredState) {

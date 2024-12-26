@@ -5,7 +5,6 @@ package frc.robot;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -549,10 +548,6 @@ public class LimelightHelpers {
 
     // Verilen mesafe için gereken atış açısını hesaplayan fonksiyon
     public static double calculateShootingAngle() {
-        SmartDashboard.putNumber("Limelight 3D Z", getTargetPose3d_RobotSpace("").getZ());
-        SmartDashboard.putNumber("Limelight tX", getTX(""));
-
-
         if (!getTV(""))
             return -25;
 

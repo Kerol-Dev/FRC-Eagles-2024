@@ -53,6 +53,13 @@ public class Robot extends TimedRobot{
   }
 
   @Override
+  public void autonomousExit() {
+      m_robotContainer.m_ShooterSubsystem.stopShooterMotorsLocal();
+      m_robotContainer.m_FeederSubsystem.setSpeeds(0);
+      m_robotContainer.m_IntakeSubsystem.setSpeeds(0);
+  }
+
+  @Override
   public void autonomousPeriodic() {
     // Otonom mod sırasında her döngüde çağrılır
     RobotContainer.driverController.getHID().setRumble(RumbleType.kBothRumble, 0);

@@ -83,7 +83,7 @@ public class ShooterSubsystem extends SubsystemBase {
         if(goalAngle == 0)
         goalAngle = -4;
 
-        SmartDashboard.putNumber("Target Angle", goalAngle);
+        SmartDashboard.putNumber("Goal Angle", goalAngle);
         SmartDashboard.putNumber("Shooter RPM", shooterMotorLower.getEncoder().getVelocity());
 
         SmartDashboard.putNumber("Shooter Position", shooterMotorHinge.getEncoder().getPosition()); // Menteşe pozisyonunu SmartDashboard'a yazdırma
@@ -121,7 +121,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void setAmpAngle(int angle) {
-         goalAngle = angle; // Atıcı açısını ayarlama komutu
+        goalAngle = angle; // Atıcı açısını ayarlama komutu
         setShooterAngleLocal();
     }
 

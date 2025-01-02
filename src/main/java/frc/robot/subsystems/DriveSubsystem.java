@@ -1,23 +1,19 @@
 package frc.robot.subsystems;
 
+import com.studica.frc.AHRS;
+import com.studica.frc.AHRS.NavXComType;
+
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.DriveConstants;
-import com.kauailabs.navx.frc.AHRS;
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
-import com.pathplanner.lib.util.PIDConstants;
-import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class DriveSubsystem extends SubsystemBase {
@@ -63,31 +59,16 @@ public class DriveSubsystem extends SubsystemBase {
       DriveConstants.kRearRightChassisAngularOffset); // Arka sağ şasi açısal ofseti
 
   public final Field2d m_field = new Field2d(); // Alan bilgisi
-  public static AHRS m_gyro = new AHRS(SPI.Port.kMXP); // Gyro sensörü
+  public static AHRS m_gyro = new AHRS(NavXComType.kMXP_SPI); // Gyro sensörü
 
   private SlewRateLimiter m_magXLimiter = new SlewRateLimiter(DriveConstants.kMaxAcceleration); // X ekseni ivme sınırlayıcı
   private SlewRateLimiter m_magYLimiter = new SlewRateLimiter(DriveConstants.kMaxAcceleration); // Y ekseni ivme sınırlayıcı
   private SlewRateLimiter m_rotLimiter = new SlewRateLimiter(DriveConstants.kMaxAngularAcceleration); // Dönüş ivme sınırlayıcı
 
-  private VisionSubsystem visionSubsystem = new VisionSubsystem(this); // Görüş sistemi
 
   /** Yeni bir DriveSubsystem oluşturur. */
   public DriveSubsystem() {
-    AutoBuilder.configureHolonomic(
-        this::getPose, // Pozisyonu al
-        this::resetOdometry, // Odometrini sıfırla
-        this::getSpeeds, // Hızları al
-        this::setSpeeds, // Hızları ayarla
-        new HolonomicPathFollowerConfig(
-            new PIDConstants(3), // PID P parametresi
-            new PIDConstants(3), // PID I parametresi
-            4.5, // PID D parametresi
-            0.427f, // Maksimum hız
-            new ReplanningConfig()), // Yeniden planlama yapılandırması
-        () -> {
-          var alliance = DriverStation.getAlliance(); // Takım bilgisi
-          return alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red; // Takım mavi mi
-        }, this);
+   
   }
 
   public ChassisSpeeds getSpeeds() {
@@ -118,7 +99,6 @@ public class DriveSubsystem extends SubsystemBase {
     m_frontRight.updateSmartDashboard(); // Ön sağ modül bilgilerini güncelle
 
     SmartDashboard.putData(m_gyro); // Gyro bilgilerini SmartDashboard'a yazdır
-    m_field.setRobotPose(visionSubsystem.poseEst.getEstimatedPosition()); // Robot pozisyonunu alana yazdır
     SmartDashboard.putData(m_field); // Alan bilgilerini SmartDashboard'a yazdır
   }
 
@@ -127,7 +107,7 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public Pose2d getPose() {
-    return visionSubsystem.poseEst.getEstimatedPosition(); // Robot pozisyonunu al
+    return null;
   }
 
   public Field2d getField() {
@@ -135,13 +115,7 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void resetOdometry(Pose2d pose) {
-    visionSubsystem.poseEst.resetPosition(
-        getHeading(), new SwerveModulePosition[] {
-            DriveSubsystem.m_frontLeft.getPosition(), // Ön sol modül pozisyonu
-            DriveSubsystem.m_frontRight.getPosition(), // Ön sağ modül pozisyonu
-            DriveSubsystem.m_rearLeft.getPosition(), // Arka sol modül pozisyonu
-            DriveSubsystem.m_rearRight.getPosition() }, // Arka sağ modül pozisyonu
-        pose); // Pozisyonu sıfırla
+    
   }
 
   public void drive(double xSpeed, double ySpeed, double rot, boolean robotCentric, boolean slowSpeed) {

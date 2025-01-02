@@ -1,12 +1,10 @@
 package frc.robot;
 
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.subsystems.ShooterSubsystem;
 
 public class Robot extends TimedRobot{
   private Command m_autonomousCommand;
@@ -23,40 +21,17 @@ public class Robot extends TimedRobot{
   public void robotPeriodic() {
     // Robot periyodik fonksiyonu, her döngüde çağrılır
     CommandScheduler.getInstance().run();
-
-    if (DriverStation.isAutonomousEnabled()) {
-      LimelightHelpers.setLEDMode_ForceOff("");
-      return;
-    }
-
-    if (DriverStation.isDisabled()) {
-      if (LimelightHelpers.getTV("")) {
-        LimelightHelpers.setLEDMode_ForceOff("");
-      } else
-        LimelightHelpers.setLEDMode_ForceBlink("");
-    } else if (LimelightHelpers.isPossible())
-      LimelightHelpers.setLEDMode_ForceOff("");
-    else
-      LimelightHelpers.setLEDMode_ForceOn("");
   }
 
   @Override
   public void autonomousInit() {
     // Otonom mod başlatıldığında çağrılır
     DriveSubsystem.resetEncoders();
-    ShooterSubsystem.shooterMotorHinge.getEncoder().setPosition(0);
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
-  }
-
-  @Override
-  public void autonomousExit() {
-      m_robotContainer.m_ShooterSubsystem.stopShooterMotorsLocal();
-      m_robotContainer.m_FeederSubsystem.setSpeeds(0);
-      m_robotContainer.m_IntakeSubsystem.setSpeeds(0);
   }
 
   @Override
@@ -71,8 +46,6 @@ public class Robot extends TimedRobot{
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
-
-    m_robotContainer.m_ShooterSubsystem.stopShooterMotorsLocal();
   }
 
   @Override

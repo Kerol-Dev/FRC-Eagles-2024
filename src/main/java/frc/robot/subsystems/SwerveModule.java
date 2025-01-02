@@ -8,10 +8,12 @@ import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.SparkPIDController;
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.RelativeEncoder;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleConstants;
@@ -19,13 +21,9 @@ import frc.robot.Constants.ModuleConstants;
 @SuppressWarnings("removal")
 public class SwerveModule {
   public final TalonFX m_drivingMotor; // Sürüş motoru
-  public final CANSparkMax m_turningSparkMax; // Dönüş motoru
-
-  public final RelativeEncoder m_turningEncoder; // Dönüş enkoderi
+  public final SparkMax m_turningSparkMax; // Dönüş motoru
 
   public final CANCoder m_canEncoder; // CAN enkoder
-
-  public final SparkPIDController m_turningPIDController; // Dönüş PID kontrolcüsü
 
   private double m_chassisAngularOffset = 0; // Şasi açısal ofseti
   public double encoderOffset; // Enkoder ofseti
@@ -49,42 +47,28 @@ public class SwerveModule {
     cl.SupplyCurrentLimit = 100;
     cl.StatorCurrentLimit = 80;
     m_drivingMotor.getConfigurator().apply(cl);
-    m_turningSparkMax = new CANSparkMax(turningCANId, MotorType.kBrushless); // Dönüş motorunu başlatma
+    m_turningSparkMax = new SparkMax(turningCANId, MotorType.kBrushless); // Dönüş motorunu başlatma
 
     m_canEncoder = new CANCoder(cancoderID); // CAN enkoderi başlatma
 
     m_canEncoder.configSensorDirection(encoderInverted); // Enkoder yönünü ayarlama
 
-    // SPARK MAX'i fabrika ayarlarına sıfırlama
-    m_turningSparkMax.restoreFactoryDefaults();
+    SparkMaxConfig config = new SparkMaxConfig();
+    config.inverted(true);
+    config.alternateEncoder.positionConversionFactor(ModuleConstants.kTurningEncoderPositionFactor);
+    config.alternateEncoder.velocityConversionFactor(ModuleConstants.kTurningEncoderVelocityFactor);
+    config.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
+    config.closedLoop.positionWrappingEnabled(true);
+    config.closedLoop.positionWrappingMinInput(ModuleConstants.kTurningEncoderPositionPIDMinInput);
+    config.closedLoop.positionWrappingMaxInput(ModuleConstants.kTurningEncoderPositionPIDMaxInput);
+    config.closedLoop.p(ModuleConstants.kTurningP);
+    config.closedLoop.p(ModuleConstants.kTurningI);
+    config.closedLoop.p(ModuleConstants.kTurningD);
+    config.closedLoop.outputRange(ModuleConstants.kTurningMinOutput, ModuleConstants.kTurningMaxOutput);
+    config.idleMode(ModuleConstants.kTurningMotorIdleMode);
+    config.smartCurrentLimit(60, 40);
 
-    m_turningSparkMax.setInverted(turningMotorReversed); // Dönüş motoru yönünü ayarlama
-
-    // Enkoderleri ve PID kontrolcülerini başlatma
-    m_turningEncoder = m_turningSparkMax.getEncoder();
-    m_turningPIDController = m_turningSparkMax.getPIDController();
-    m_turningPIDController.setFeedbackDevice(m_turningEncoder);
-
-    // Enkoder konum ve hız dönüştürme faktörlerini ayarlama
-    m_turningEncoder.setPositionConversionFactor(ModuleConstants.kTurningEncoderPositionFactor);
-    m_turningEncoder.setVelocityConversionFactor(ModuleConstants.kTurningEncoderVelocityFactor);
-
-    // Dönüş enkoderini ters çevirme
-    m_turningPIDController.setPositionPIDWrappingEnabled(true);
-    m_turningPIDController.setPositionPIDWrappingMinInput(ModuleConstants.kTurningEncoderPositionPIDMinInput);
-    m_turningPIDController.setPositionPIDWrappingMaxInput(ModuleConstants.kTurningEncoderPositionPIDMaxInput);
-
-    // Dönüş motoru için PID kazançlarını ayarlama
-    m_turningPIDController.setP(ModuleConstants.kTurningP);
-    m_turningPIDController.setI(ModuleConstants.kTurningI);
-    m_turningPIDController.setD(ModuleConstants.kTurningD);
-    m_turningPIDController.setOutputRange(ModuleConstants.kTurningMinOutput, ModuleConstants.kTurningMaxOutput);
-
-    m_turningSparkMax.setIdleMode(ModuleConstants.kTurningMotorIdleMode); // Boşta modunu ayarlama
-    m_turningSparkMax.setSmartCurrentLimit(ModuleConstants.kTurningMotorCurrentLimit); // Akım sınırını ayarlama
-
-    // SPARK MAX yapılandırmalarını kaydetme
-    m_turningSparkMax.burnFlash();
+    m_turningSparkMax.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     m_chassisAngularOffset = chassisAngularOffset; // Şasi açısal ofsetini ayarlama
     m_desiredState.angle = new Rotation2d(0); // İstenen durumu ayarlama
@@ -99,7 +83,7 @@ public class SwerveModule {
   }
 
   private Rotation2d getAngle() {
-    return Rotation2d.fromRadians(m_turningEncoder.getPosition() - m_chassisAngularOffset); // Modül açısını alma
+    return Rotation2d.fromRadians(m_turningSparkMax.getEncoder().getPosition() - m_chassisAngularOffset); // Modül açısını alma
   }
 
   private double getMotorPosition() {
@@ -109,7 +93,7 @@ public class SwerveModule {
   public void updateSmartDashboard() {
     SmartDashboard.putNumber("Cancoder_" + m_canEncoder.getDeviceID(), getCanCoder().getDegrees()); // SmartDashboard'a CAN enkoder verilerini yazdırma
     SmartDashboard.putNumber("NeoAngle_" + m_canEncoder.getDeviceID(),
-        Math.toDegrees((Math.abs(m_turningEncoder.getPosition()) % (2.0 * Math.PI)))); // SmartDashboard'a dönüş açısını yazdırma
+        Math.toDegrees((Math.abs(m_turningSparkMax.getEncoder().getPosition()) % (2.0 * Math.PI)))); // SmartDashboard'a dönüş açısını yazdırma
   }
 
   public void setDesiredState(SwerveModuleState desiredState) {
@@ -120,14 +104,15 @@ public class SwerveModule {
     correctedDesiredState.angle = desiredState.angle.plus(Rotation2d.fromRadians(m_chassisAngularOffset));
 
     // İstenen durumu optimize et
+    @SuppressWarnings("deprecation")
     SwerveModuleState optimizedDesiredState = SwerveModuleState.optimize(correctedDesiredState,
-        new Rotation2d(m_turningEncoder.getPosition()));
+        new Rotation2d(m_turningSparkMax.getEncoder().getPosition()));
 
     // Sürüş ve dönüş motorlarını hedef duruma yönlendir
     m_drivingMotor.set(optimizedDesiredState.speedMetersPerSecond / DriveConstants.kMaxSpeedMetersPerSecond);
     if (Math.abs(optimizedDesiredState.speedMetersPerSecond) < 0.006)
       m_drivingMotor.stopMotor();
-    m_turningPIDController.setReference(optimizedDesiredState.angle.getRadians(), CANSparkMax.ControlType.kPosition);
+    m_turningSparkMax.getClosedLoopController().setReference(optimizedDesiredState.angle.getRadians(), SparkMax.ControlType.kPosition);
 
     m_desiredState = desiredState; // İstenen durumu ayarla
   }
@@ -147,7 +132,7 @@ public class SwerveModule {
 
   public void resetToAbsolute() {
     double absolutePosition = getCanCoder().getRadians() - encoderOffset2d.getRadians(); // Mutlak pozisyonu hesapla
-    m_turningEncoder.setPosition(absolutePosition); // Enkoder pozisyonunu ayarla
+    m_turningSparkMax.getEncoder().setPosition(absolutePosition); // Enkoder pozisyonunu ayarla
 
     resetEncoders(); // Enkoderleri sıfırla
   }

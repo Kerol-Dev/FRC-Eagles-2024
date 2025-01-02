@@ -91,7 +91,6 @@ public class DriveSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    m_gyro.setAngleAdjustment(DriverStation.getAlliance().get() == Alliance.Red ? 0 : 180);
     // Periodik olarak odometriyi güncelle
     m_rearLeft.updateSmartDashboard(); // Arka sol modül bilgilerini güncelle
     m_rearRight.updateSmartDashboard(); // Arka sağ modül bilgilerini güncelle

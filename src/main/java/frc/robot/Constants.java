@@ -8,8 +8,8 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 public final class Constants {
   public static final class DriveConstants {
 
-    public static final double kMaxSpeedMetersPerSecond = 3; // Maksimum hız (m/s)
-    public static final double kMaxAcceleration = 3; // Maksimum ivme
+    public static final double kMaxSpeedMetersPerSecond = 4.8; // Maksimum hız (m/s)
+    public static final double kMaxAcceleration = 4; // Maksimum ivme
     public static final double kMaxAngularSpeed = 1 * Math.PI; // Maksimum açısal hız
     public static final double kMaxAngularAcceleration = 3; // Maksimum açısal ivme
 
@@ -44,10 +44,10 @@ public final class Constants {
     public static final int kRearLeftcanCoderIDCanId = 21; // Arka sol canCoder ID CAN kimliği
     public static final int kRearRightcanCoderIDCanId = 17; // Arka sağ canCoder ID CAN kimliği
 
-    public static final float kFrontLeftcanCoderOffset = 226.0f; // Ön sol canCoder ofseti
-    public static final float kFrontRightcanCoderOffset = 183.6f; // Ön sağ canCoder ofseti
-    public static final float kRearLeftcanCoderOffset = 154.7f; // Arka sol canCoder ofseti
-    public static final float kRearRightcanCoderOffset = 358.5f; // Arka sağ canCoder ofseti
+    public static final float kFrontLeftcanCoderOffset = 46.75f; // Ön sol canCoder ofseti
+    public static final float kFrontRightcanCoderOffset = 3.2f; // Ön sağ canCoder ofseti
+    public static final float kRearLeftcanCoderOffset = -22.93f; // Arka sol canCoder ofseti
+    public static final float kRearRightcanCoderOffset = 178.5f; // Arka sağ canCoder ofseti
 
     public static final boolean kGyroReversed = false; // Gyro yönü ters mi
     public static final double kGyroOffset = 0.0; // Gyro ofseti
@@ -61,7 +61,7 @@ public final class Constants {
     public static final double kWheelCircumferenceMeters = kWheelDiameterMeters * Math.PI; // Tekerlek çevresi (metre)
 
     public static final double kDrivingMotorReduction = 6.5; // Sürüş motoru dişli oranı
-    public static final double kTurningMotorReduction = 9.8736; // Dönüş motoru dişli oranı
+    public static final double kTurningMotorReduction = 10.04; // Dönüş motoru dişli oranı
 
     public static final double kDrivingEncoderPositionFactor = ((kWheelDiameterMeters * Math.PI)
         / kDrivingMotorReduction); // Sürüş enkoderi pozisyon faktörü (metre)
@@ -80,7 +80,7 @@ public final class Constants {
     public static final double kDrivingMinOutput = -1; // Sürüş motoru PID minimum çıkış
     public static final double kDrivingMaxOutput = 1; // Sürüş motoru PID maksimum çıkış
 
-    public static final double kTurningP = 0.5; // Dönüş motoru PID P parametresi
+    public static final double kTurningP = 0.75; // Dönüş motoru PID P parametresi
     public static final double kTurningI = 0; // Dönüş motoru PID I parametresi
     public static final double kTurningD = 0; // Dönüş motoru PID D parametresi
     public static final double kTurningMinOutput = -1; // Dönüş motoru PID minimum çıkış

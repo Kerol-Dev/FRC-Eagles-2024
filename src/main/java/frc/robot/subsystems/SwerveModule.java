@@ -4,10 +4,13 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import com.ctre.phoenix.sensors.CANCoder;
+
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -23,7 +26,7 @@ public class SwerveModule {
   public final TalonFX m_drivingMotor; // Sürüş motoru
   public final SparkMax m_turningSparkMax; // Dönüş motoru
 
-  public final CANCoder m_canEncoder; // CAN enkoder
+  public final CANcoder m_canEncoder; // CAN enkoder
 
   private double m_chassisAngularOffset = 0; // Şasi açısal ofseti
   public double encoderOffset; // Enkoder ofseti
@@ -49,21 +52,23 @@ public class SwerveModule {
     m_drivingMotor.getConfigurator().apply(cl);
     m_turningSparkMax = new SparkMax(turningCANId, MotorType.kBrushless); // Dönüş motorunu başlatma
 
-    m_canEncoder = new CANCoder(cancoderID); // CAN enkoderi başlatma
+    m_canEncoder = new CANcoder(cancoderID); // CAN enkoderi başlatma
 
-    m_canEncoder.configSensorDirection(encoderInverted); // Enkoder yönünü ayarlama
+    CANcoderConfiguration caNcoderConfiguration = new CANcoderConfiguration();
+    caNcoderConfiguration.MagnetSensor.SensorDirection = encoderInverted ? SensorDirectionValue.Clockwise_Positive : SensorDirectionValue.CounterClockwise_Positive;
+    m_canEncoder.getConfigurator().apply(caNcoderConfiguration);
 
     SparkMaxConfig config = new SparkMaxConfig();
     config.inverted(true);
-    config.alternateEncoder.positionConversionFactor(ModuleConstants.kTurningEncoderPositionFactor);
-    config.alternateEncoder.velocityConversionFactor(ModuleConstants.kTurningEncoderVelocityFactor);
+    config.encoder.positionConversionFactor(ModuleConstants.kTurningEncoderPositionFactor);
+    config.encoder.velocityConversionFactor(ModuleConstants.kTurningEncoderVelocityFactor);
     config.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
     config.closedLoop.positionWrappingEnabled(true);
     config.closedLoop.positionWrappingMinInput(ModuleConstants.kTurningEncoderPositionPIDMinInput);
     config.closedLoop.positionWrappingMaxInput(ModuleConstants.kTurningEncoderPositionPIDMaxInput);
     config.closedLoop.p(ModuleConstants.kTurningP);
-    config.closedLoop.p(ModuleConstants.kTurningI);
-    config.closedLoop.p(ModuleConstants.kTurningD);
+    config.closedLoop.i(ModuleConstants.kTurningI);
+    config.closedLoop.d(ModuleConstants.kTurningD);
     config.closedLoop.outputRange(ModuleConstants.kTurningMinOutput, ModuleConstants.kTurningMaxOutput);
     config.idleMode(ModuleConstants.kTurningMotorIdleMode);
     config.smartCurrentLimit(60, 40);
@@ -127,7 +132,7 @@ public class SwerveModule {
   }
 
   public Rotation2d getCanCoder() {
-    return Rotation2d.fromDegrees((m_canEncoder.getAbsolutePosition())); // CAN enkoder pozisyonunu döndür
+    return Rotation2d.fromDegrees((m_canEncoder.getAbsolutePosition().getValueAsDouble() * 360)); // CAN enkoder pozisyonunu döndür
   }
 
   public void resetToAbsolute() {
